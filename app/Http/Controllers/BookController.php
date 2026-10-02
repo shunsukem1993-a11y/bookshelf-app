@@ -19,4 +19,14 @@ class BookController extends Controller
 
         return view('books.index', compact('books'));
     }
+
+    /**
+     * 書籍詳細を表示する（ゲストも閲覧可能）。
+     */
+    public function show(Book $book): View
+    {
+        $book->load(['genres', 'reviews.user', 'reviews.likedByUsers']);
+
+        return view('books.show', compact('book'));
+    }
 }
