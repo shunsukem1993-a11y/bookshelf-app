@@ -29,7 +29,7 @@ class BookFactory extends Factory
             'title' => fake()->sentence(3),
             'author' => fake()->name(),
             'isbn' => fake()->unique()->ean13(),
-            'published_at' => fake()->date(),
+            'published_date' => fake()->date(),
             'description' => fake()->sentence(),
             'image_url' => fake()->imageUrl(),
         ];
