@@ -13,11 +13,13 @@ class UpdateBookRequest extends FormRequest
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 作成者本人かどうかの認可はコントローラ側の$this->authorize()で行うため、ここでは常に許可する。
+     * 認可をバリデーションより先に行うため、作成者以外の更新は入力内容に関係なく403となる。
      */
     public function authorize(): bool
     {
-        return true;
+        $book = $this->route('book');
+
+        return $this->user() !== null && $this->user()->can('update', $book);
     }
 
     /**

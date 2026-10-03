@@ -31,9 +31,8 @@ class BookAuthorizationTest extends TestCase
     /**
      * 他ユーザーが正しい入力で更新しようとしても403になり、DBが更新されないことを確認する（A-04）。
      *
-     * 注意: ここでは必ず有効なリクエストボディを使う。UpdateBookRequestのバリデーションは
-     * コントローラの$this->authorize()より先に実行されるため、無効な入力だと
-     * バリデーションエラー（302）が返り、認可（403）を検証できないため。
+     * UpdateBookRequestの認可（authorize）はバリデーションより先に実行されるため、
+     * 入力内容が有効かどうかに関係なく403になる。
      *
      * A-03（所有者が更新できる）はBookUpdateTest::test_owner_can_update_book_with_valid_dataで検証済み。
      */
@@ -45,6 +44,28 @@ class BookAuthorizationTest extends TestCase
         $genre = Genre::factory()->create();
 
         $response = $this->actingAs($otherUser)->put(route('books.update', $book), $this->validPayload($book, $genre));
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => '元のタイトル']);
+    }
+
+    /**
+     * 他ユーザーが無効な入力で更新しようとしても403になり、DBが更新されないことを確認する（A-04の補足）。
+     *
+     * 認可をバリデーションより先に行うため、作成者以外には入力内容の検証結果を返さない。
+     * 無効な入力（タイトルが空）でもバリデーションエラー（302）ではなく403が返ることを検証する。
+     */
+    public function test_other_user_gets_forbidden_even_with_invalid_input_when_updating_book(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $owner->id, 'title' => '元のタイトル']);
+        $genre = Genre::factory()->create();
+
+        $payload = $this->validPayload($book, $genre);
+        $payload['title'] = '';
+
+        $response = $this->actingAs($otherUser)->put(route('books.update', $book), $payload);
 
         $response->assertForbidden();
         $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => '元のタイトル']);
