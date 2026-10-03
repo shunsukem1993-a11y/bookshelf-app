@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class BookShowTest extends TestCase
@@ -96,5 +97,45 @@ class BookShowTest extends TestCase
         $response = $this->get('/books/999999');
 
         $response->assertNotFound();
+    }
+
+    /**
+     * レビューの評価（★）と投稿日（Y/m/d）が表示されることを確認する。
+     */
+    public function test_review_shows_rating_stars_and_posted_date(): void
+    {
+        $book = Book::factory()->create();
+        Review::factory()->create([
+            'book_id' => $book->id,
+            'rating' => 3,
+            'created_at' => Carbon::create(2026, 1, 15, 10, 0, 0),
+        ]);
+
+        $response = $this->get(route('books.show', $book));
+
+        $response->assertSee('★★★☆☆');
+        $response->assertSee('2026/01/15');
+    }
+
+    /**
+     * レビューが投稿日時の新しい順に表示されることを確認する。
+     */
+    public function test_reviews_are_shown_newest_first(): void
+    {
+        $book = Book::factory()->create();
+        Review::factory()->create([
+            'book_id' => $book->id,
+            'comment' => '古いレビュー',
+            'created_at' => Carbon::create(2026, 1, 1, 10, 0, 0),
+        ]);
+        Review::factory()->create([
+            'book_id' => $book->id,
+            'comment' => '新しいレビュー',
+            'created_at' => Carbon::create(2026, 1, 10, 10, 0, 0),
+        ]);
+
+        $response = $this->get(route('books.show', $book));
+
+        $response->assertSeeInOrder(['新しいレビュー', '古いレビュー']);
     }
 }
