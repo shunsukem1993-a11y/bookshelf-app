@@ -1,66 +1,228 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BookShelf 書籍レビューアプリ
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 概要
 
-## About Laravel
+本アプリケーションは、書籍の登録・一覧表示・詳細表示と、ログインユーザーによるレビューの投稿・編集・削除を提供するWebアプリケーションです。
+会員登録とログインにはLaravel Fortifyを使用しています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 作成者
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+溝口　竣介
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 使用技術
 
-## Learning Laravel
+- PHP 8.5
+- Laravel 10.x
+- MySQL 8.4
+- Vite
+- Tailwind CSS 3.4
+- @tailwindcss/forms
+- Laravel Fortify
+- Docker / Laravel Sail
+- phpMyAdmin
+- PHPUnit 10.x
+- Git / GitHub
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## ER図
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```mermaid
+erDiagram
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    users {
+        bigint id PK
+        varchar name
+        varchar email "UNIQUE"
+        timestamp email_verified_at
+        varchar password
+        varchar remember_token
+        timestamp created_at
+        timestamp updated_at
+    }
 
-## Laravel Sponsors
+    genres {
+        bigint id PK
+        varchar name "UNIQUE"
+        timestamp created_at
+        timestamp updated_at
+    }
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+    books {
+        bigint id PK
+        bigint user_id FK
+        varchar title
+        varchar author
+        varchar isbn "UNIQUE"
+        date published_date
+        varchar description "nullable"
+        varchar image_url "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
 
-### Premium Partners
+    book_genre {
+        bigint id PK
+        bigint book_id FK
+        bigint genre_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+    reviews {
+        bigint id PK
+        bigint user_id FK
+        bigint book_id FK
+        tinyint rating
+        varchar comment
+        timestamp created_at
+        timestamp updated_at
+    }
 
-## Contributing
+    book_user {
+        bigint id PK
+        bigint user_id FK
+        bigint book_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    review_user {
+        bigint id PK
+        bigint user_id FK
+        bigint review_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
 
-## Code of Conduct
+    users ||--o{ books : "has many"
+    users ||--o{ reviews : "has many"
+    books ||--o{ reviews : "has many"
+    books ||--o{ book_genre : "has many"
+    genres ||--o{ book_genre : "has many"
+    users ||--o{ book_user : "has many"
+    books ||--o{ book_user : "has many"
+    users ||--o{ review_user : "has many"
+    reviews ||--o{ review_user : "has many"
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 開発環境URL
 
-## Security Vulnerabilities
+- 開発環境：http://localhost
+- phpMyAdmin：http://localhost:8080
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 動作環境
 
-## License
+本アプリケーションは**Docker（Laravel Sail）**を利用して動作します。
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 環境構築手順
+
+1. **リポジトリをクローン**
+
+    リポジトリをクローンします。
+    ```bash
+    git clone git@github.com:shunsukem1993-a11y/attendance-app.git
+    ```
+    クローンしたプロジェクトディレクトリに移動します。
+    ```bash
+    cd attendance-app
+    ```
+
+2. **.envファイルの準備**
+    
+    .env.exampleをコピーして.envファイルを作成します。
+    ```bash
+    cp .env.example .env
+    ```
+
+    .envのデータベース設定が以下になっていることを確認してください。
+
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=laravel
+    DB_USERNAME=sail
+    DB_PASSWORD=password
+
+    MAIL_MAILER=smtp
+    MAIL_HOST=mailpit
+    MAIL_PORT=1025
+
+3. **Composer依存パッケージのインストール**
+
+    Composerで依存パッケージをインストールします。
+    ```bash
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs
+    ```
+
+4. **Laravel Sailの起動**
+
+    Dockerコンテナを起動します。
+    ```bash
+    ./vendor/bin/sail up -d
+    ```
+
+5. **アプリケーションキーの生成**
+
+    Laravelのアプリケーションキーを生成します。
+    ```bash
+    ./vendor/bin/sail artisan key:generate
+    ```
+
+6. **データベースのマイグレーションと初期データ投入**
+
+    テーブルを作成し、シーダーを実行します。
+    ```bash
+    ./vendor/bin/sail artisan migrate --seed
+    ```
+
+7. **フロントエンドのビルド**
+
+    Node.jsの依存パッケージをインストールし、開発用ビルドを実行します。
+    ```bash
+    ./vendor/bin/sail npm install
+    ./vendor/bin/sail npm run dev
+    ```
+
+8. **アプリケーションへのアクセス**
+
+    ブラウザで以下のURLにアクセスします。
+    ```bash
+    http://localhost
+    ```
+
+## テスト実行
+
+PHPUnitによるテストを実行する場合は、以下のコマンドを実行してください。
+```bash
+./vendor/bin/sail test
+```
+
+特定のテストファイルのみを実行する場合は、以下のように指定できます。
+```bash
+./vendor/bin/sail artisan test --filter=テストファイル名
+```
+
+例：
+```bash
+./vendor/bin/sail artisan test --BookIndexTest
+```
+
+## 機能一覧
+
+
+
+
+## APIエンドポイント一覧
+
+本アプリケーションで提供している主なREST APIの一覧です。
+
+書籍レビューAPI
+
+| HTTPメソッド | URI | 概要 | 認証| 認証・認可 |
+| ---------- | ---------------------------------------------- | ------ | --------- | --------------------------------------- |
