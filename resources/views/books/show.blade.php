@@ -12,6 +12,11 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if (session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex flex-col md:flex-row gap-6">
@@ -98,6 +103,9 @@
                         <h2 class="text-xl font-bold mb-4">レビュー</h2>
 
                         @auth
+                            @if($book->reviews->contains('user_id', Auth::id()))
+                                <p class="mb-6 text-gray-600">この書籍には既にレビューを投稿しています。</p>
+                            @else
                             <!-- レビュー投稿フォーム -->
                             <div class="mb-6 bg-gray-50 p-4 rounded-lg">
                                 <h3 class="font-semibold mb-3">レビューを投稿</h3>
@@ -133,6 +141,7 @@
                                     </div>
                                 </form>
                             </div>
+                            @endif
                         @else
                             <p class="mb-6 text-gray-600">
                                 レビューを投稿するには<a href="{{ route('login') }}" class="text-blue-600 hover:underline">ログイン</a>してください。

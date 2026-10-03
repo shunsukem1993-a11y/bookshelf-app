@@ -29,7 +29,13 @@ class BookController extends Controller
      */
     public function show(Book $book): View
     {
-        $book->load(['genres', 'reviews.user', 'reviews.likedByUsers']);
+        // レビューは投稿日時の新しい順に表示する
+        $book->load([
+            'genres',
+            'reviews' => fn ($query) => $query->latest(),
+            'reviews.user',
+            'reviews.likedByUsers',
+        ]);
 
         return view('books.show', compact('book'));
     }
