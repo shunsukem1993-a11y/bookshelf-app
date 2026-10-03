@@ -4,15 +4,16 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\BookValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreBookRequest extends FormRequest
+class UpdateBookRequest extends FormRequest
 {
     use BookValidationRules;
 
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 'auth'ミドルウェアで未認証アクセスは弾くため、ここでは常に許可する。
+     * 作成者本人かどうかの認可はコントローラ側の$this->authorize()で行うため、ここでは常に許可する。
      */
     public function authorize(): bool
     {
@@ -28,7 +29,12 @@ class StoreBookRequest extends FormRequest
     {
         return [
             ...$this->commonBookRules(),
-            'isbn' => ['required', 'string', 'digits:13', 'unique:books,isbn'],
+            'isbn' => [
+                'required',
+                'string',
+                'digits:13',
+                Rule::unique('books', 'isbn')->ignore($this->route('book')),
+            ],
         ];
     }
 
