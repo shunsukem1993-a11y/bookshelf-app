@@ -29,46 +29,43 @@ class BookAuthorizationTest extends TestCase
     }
 
     /**
-     * 他ユーザーが正しい入力で更新しようとしても403になり、DBが更新されないことを確認する（A-04）。
+     * 他ユーザーが更新しようとしても、入力内容（有効・無効）に関係なく403になり、DBが更新されないことを確認する（A-04）。
      *
      * UpdateBookRequestの認可（authorize）はバリデーションより先に実行されるため、
-     * 入力内容が有効かどうかに関係なく403になる。
+     * 無効な入力でもバリデーションエラー（302）ではなく403が返る。
      *
      * A-03（所有者が更新できる）はBookUpdateTest::test_owner_can_update_book_with_valid_dataで検証済み。
+     *
+     * @dataProvider otherUserUpdateOverridesProvider
+     *
+     * @param  array<string, mixed>  $overrides
      */
-    public function test_other_user_cannot_update_book(): void
+    public function test_other_user_cannot_update_book(array $overrides): void
     {
         $owner = User::factory()->create();
         $otherUser = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $owner->id, 'title' => '元のタイトル']);
         $genre = Genre::factory()->create();
 
-        $response = $this->actingAs($otherUser)->put(route('books.update', $book), $this->validPayload($book, $genre));
+        $payload = array_merge($this->validPayload($book, $genre), $overrides);
+
+        $response = $this->actingAs($otherUser)->put(route('books.update', $book), $payload);
 
         $response->assertForbidden();
         $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => '元のタイトル']);
     }
 
     /**
-     * 他ユーザーが無効な入力で更新しようとしても403になり、DBが更新されないことを確認する（A-04の補足）。
+     * 他ユーザーの更新で、有効な入力に上書きする値の一覧（有効な値は上書きなし、無効な値はタイトルを空にする）。
      *
-     * 認可をバリデーションより先に行うため、作成者以外には入力内容の検証結果を返さない。
-     * 無効な入力（タイトルが空）でもバリデーションエラー（302）ではなく403が返ることを検証する。
+     * @return array<string, array{0: array<string, mixed>}>
      */
-    public function test_other_user_gets_forbidden_even_with_invalid_input_when_updating_book(): void
+    public static function otherUserUpdateOverridesProvider(): array
     {
-        $owner = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $book = Book::factory()->create(['user_id' => $owner->id, 'title' => '元のタイトル']);
-        $genre = Genre::factory()->create();
-
-        $payload = $this->validPayload($book, $genre);
-        $payload['title'] = '';
-
-        $response = $this->actingAs($otherUser)->put(route('books.update', $book), $payload);
-
-        $response->assertForbidden();
-        $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => '元のタイトル']);
+        return [
+            '有効な値' => [[]],
+            '無効な値（タイトルが空）' => [['title' => '']],
+        ];
     }
 
     /**
@@ -127,6 +124,16 @@ class BookAuthorizationTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->delete('/books/999999');
+
+        $response->assertNotFound();
+    }
+
+    /**
+     * 存在しない書籍IDの詳細表示は404になることを確認する（E-18）。
+     */
+    public function test_show_returns_404_for_nonexistent_book(): void
+    {
+        $response = $this->get('/books/999999');
 
         $response->assertNotFound();
     }

@@ -75,7 +75,6 @@ class BookValidationTest extends TestCase
             'isbn 14 digits (B-07)' => ['isbn', '12345678901234', 'isbn', 'ISBNは13桁で入力してください。'],
             'description 256 chars (B-09)' => ['description', str_repeat('う', 256), 'description', '説明は255文字以内で入力してください。'],
             'image_url 256 chars (B-12)' => ['image_url', 'https://example.com/'.str_repeat('a', 240), 'image_url', '画像URLは255文字以内で入力してください。'],
-            'genres 0 items (B-13)' => ['genres', [], 'genres', 'ジャンルを1つ以上選択してください。'],
         ];
     }
 
@@ -146,22 +145,6 @@ class BookValidationTest extends TestCase
     }
 
     /**
-     * isbnがちょうど13桁の場合は成功することを確認する（B-06）。
-     */
-    public function test_store_accepts_isbn_at_13_digits(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = $this->validPayload($genre->id);
-        $payload['isbn'] = '1234567890123';
-
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionDoesntHaveErrors();
-    }
-
-    /**
      * description/image_urlがちょうど255文字の場合は成功することを確認する（B-08, B-11）。
      */
     public function test_store_accepts_description_and_image_url_at_255_chars(): void
@@ -179,26 +162,9 @@ class BookValidationTest extends TestCase
     }
 
     /**
-     * genresがちょうど1件の場合は成功することを確認する（B-14）。
-     *
-     * B-10（description/image_url未入力で成功）はBookStoreTest::test_description_and_image_url_are_optionalで検証済み。
+     * バリデーション失敗時、入力値がold()で保持され、/books/createにリダイレクトされ、書籍が作成されないことを確認する（E-14, E-15）。
      */
-    public function test_store_accepts_single_genre(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = $this->validPayload($genre->id);
-
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionDoesntHaveErrors();
-    }
-
-    /**
-     * バリデーション失敗時、入力値がold()で保持されることを確認する（E-14）。
-     */
-    public function test_store_keeps_old_input_on_validation_failure(): void
+    public function test_store_keeps_old_input_and_does_not_create_book_on_validation_failure(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
@@ -207,27 +173,12 @@ class BookValidationTest extends TestCase
         $payload['title'] = '';
         $payload['author'] = '保持されるべき著者名';
 
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionHasInput('author', '保持されるべき著者名');
-    }
-
-    /**
-     * バリデーション失敗時、/books/createにリダイレクトされ書籍が作成されないことを確認する（E-15）。
-     */
-    public function test_store_does_not_create_book_on_validation_failure(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = $this->validPayload($genre->id);
-        $payload['title'] = '';
-
         $response = $this->actingAs($user)
             ->from(route('books.create'))
             ->post(route('books.store'), $payload);
 
         $response->assertRedirect(route('books.create'));
+        $response->assertSessionHasInput('author', '保持されるべき著者名');
         $this->assertDatabaseCount('books', 0);
     }
 

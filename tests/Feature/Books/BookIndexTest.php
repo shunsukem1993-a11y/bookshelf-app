@@ -25,7 +25,7 @@ class BookIndexTest extends TestCase
     }
 
     /**
-     * 書籍が10件/ページでページネーションされることを確認する（C-02）。
+     * 書籍が10件/ページでページネーションされ、11件の場合は2ページ目に1件表示されることを確認する（C-02, B-16）。
      */
     public function test_book_index_is_paginated_by_ten_per_page(): void
     {
@@ -35,6 +35,7 @@ class BookIndexTest extends TestCase
         $books = $page1->viewData('books');
         $this->assertCount(10, $books);
         $this->assertSame(11, $books->total());
+        $this->assertSame(2, $books->lastPage());
 
         $page2 = $this->get(route('books.index', ['page' => 2]));
         $this->assertCount(1, $page2->viewData('books'));
@@ -50,18 +51,6 @@ class BookIndexTest extends TestCase
         $response = $this->get(route('books.index'));
 
         $this->assertSame(1, $response->viewData('books')->lastPage());
-    }
-
-    /**
-     * 書籍が11件の場合は2ページ目に1件表示されることを確認する（B-16）。
-     */
-    public function test_book_index_has_second_page_when_eleven_books_exist(): void
-    {
-        Book::factory()->count(11)->create();
-
-        $response = $this->get(route('books.index'));
-
-        $this->assertSame(2, $response->viewData('books')->lastPage());
     }
 
     /**
