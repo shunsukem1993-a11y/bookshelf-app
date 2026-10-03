@@ -83,4 +83,19 @@ class BookController extends Controller
 
         return redirect()->route('books.show', $book)->with('success', '書籍を更新しました。');
     }
+
+    /**
+     * 書籍を削除する（作成者本人のみ）。
+     *
+     * 関連データ（book_genre・reviews・favorites・いいね）はDBの外部キー制約
+     * （cascadeOnDelete）により自動的に削除される。
+     */
+    public function destroy(Book $book): RedirectResponse
+    {
+        $this->authorize('delete', $book);
+
+        $book->delete();
+
+        return redirect()->route('books.index')->with('success', '書籍を削除しました。');
+    }
 }
