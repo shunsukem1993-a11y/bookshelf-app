@@ -31,7 +31,9 @@ trait BookValidationRules
     {
         return [
             'title.required' => 'タイトルは必須です。',
+            'title.max' => 'タイトルは255文字以内で入力してください。',
             'author.required' => '著者名は必須です。',
+            'author.max' => '著者名は255文字以内で入力してください。',
             'published_date.required' => '出版日は必須です。',
             'published_date.date_format' => '出版日はYYYY-MM-DD形式で入力してください。',
             'description.max' => '説明は255文字以内で入力してください。',
@@ -39,6 +41,7 @@ trait BookValidationRules
             'image_url.max' => '画像URLは255文字以内で入力してください。',
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',
+            'genres.*.integer' => 'ジャンルIDは整数で指定してください。',
             'genres.*.exists' => '指定されたジャンルは存在しません。',
         ];
     }
