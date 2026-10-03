@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
 use Illuminate\Http\RedirectResponse;
@@ -56,5 +57,30 @@ class BookController extends Controller
         $book->genres()->sync($request->validated('genres'));
 
         return redirect()->route('books.index')->with('success', '書籍を登録しました。');
+    }
+
+    /**
+     * 書籍編集フォームを表示する（作成者本人のみ）。
+     */
+    public function edit(Book $book): View
+    {
+        $this->authorize('update', $book);
+
+        $genres = Genre::all();
+
+        return view('books.edit', compact('book', 'genres'));
+    }
+
+    /**
+     * 書籍を更新する（作成者本人のみ）。
+     */
+    public function update(UpdateBookRequest $request, Book $book): RedirectResponse
+    {
+        $this->authorize('update', $book);
+
+        $book->update($request->safe()->except('genres'));
+        $book->genres()->sync($request->validated('genres'));
+
+        return redirect()->route('books.show', $book)->with('success', '書籍を更新しました。');
     }
 }
