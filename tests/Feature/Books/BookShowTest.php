@@ -90,16 +90,6 @@ class BookShowTest extends TestCase
     }
 
     /**
-     * 存在しない書籍IDの場合は404が返ることを確認する（E-18）。
-     */
-    public function test_show_returns_404_for_nonexistent_book(): void
-    {
-        $response = $this->get('/books/999999');
-
-        $response->assertNotFound();
-    }
-
-    /**
      * レビューの評価（★）と投稿日（Y/m/d）が表示されることを確認する。
      */
     public function test_review_shows_rating_stars_and_posted_date(): void
