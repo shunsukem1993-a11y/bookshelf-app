@@ -46,6 +46,15 @@ Route::middleware('auth')->group(function () {
 
     // 書籍にレビューを投稿する（認証必須）。
     Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+    // レビュー編集フォームを表示する（投稿者本人のみ。ReviewPolicy@updateで認可）。
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+
+    // レビューを更新する（投稿者本人のみ。UpdateReviewRequestで認可）。
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+
+    // レビューを削除する（投稿者本人のみ。ReviewPolicy@deleteで認可）。
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。

@@ -5,18 +5,20 @@ namespace App\Http\Requests;
 use App\Http\Requests\Concerns\ReviewValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreReviewRequest extends FormRequest
+class UpdateReviewRequest extends FormRequest
 {
     use ReviewValidationRules;
 
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 'auth'ミドルウェアで未認証アクセスは弾くため、ここでは常に許可する。
+     * 認可をバリデーションより先に行うため、他人のレビューへの更新は入力内容に関係なく403となる。
      */
     public function authorize(): bool
     {
-        return true;
+        $review = $this->route('review');
+
+        return $this->user() !== null && $this->user()->can('update', $review);
     }
 
     /**
