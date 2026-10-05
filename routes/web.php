@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/genres/{genre}', [GenreController::class, 'update'])->name('genres.update');
 
     // ジャンル削除。仮ルート（実装はIssue #38）。
-    Route::delete('/genres/{genre}', fn (Genre $genre) => '準備中')->name('genres.destroy');
+    Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
