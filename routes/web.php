@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
 use App\Models\Book;
+use App\Models\Genre;
 use App\Models\Review;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +57,22 @@ Route::middleware('auth')->group(function () {
 
     // レビューを削除する（投稿者本人のみ。ReviewPolicy@deleteで認可）。
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // ジャンル一覧（書籍数付き。登録順）。
+    Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
+
+    // ジャンル登録フォーム。仮ルート（実装はIssue #37）。
+    // 注意: "/genres/create" は下にある "/genres/{genre}" より前に登録すること。
+    Route::get('/genres/create', fn () => '準備中')->name('genres.create');
+
+    // ジャンル詳細（紐づく書籍を10件/ページ、登録順）。
+    Route::get('/genres/{genre}', [GenreController::class, 'show'])->name('genres.show');
+
+    // ジャンル編集フォーム。仮ルート（実装はIssue #37）。
+    Route::get('/genres/{genre}/edit', fn (Genre $genre) => '準備中')->name('genres.edit');
+
+    // ジャンル削除。仮ルート（実装はIssue #38）。
+    Route::delete('/genres/{genre}', fn (Genre $genre) => '準備中')->name('genres.destroy');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
@@ -63,6 +81,5 @@ Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show')
 // --- 以下は別Issueで実装予定の仮ルート（books/show.blade.phpのroute()解決用） ---
 Route::post('/books/{book}/favorites', fn (Book $book) => '準備中')->name('favorites.toggle');
 Route::post('/reviews/{review}/like', fn (Review $review) => '準備中')->name('reviews.like');
-Route::get('/genres', fn () => '準備中')->name('genres.index');
 Route::get('/favorites', fn () => '準備中')->name('favorites.index');
 Route::get('/ranking', fn () => '準備中')->name('ranking.index');
