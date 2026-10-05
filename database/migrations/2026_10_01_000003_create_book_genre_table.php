@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('book_genre', function (Blueprint $table) {
             $table->id();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
+            // 書籍が紐づいたジャンルは削除させない（削除の制限をDBでも保証する）
             $table->foreignId('genre_id')
                 ->constrained('genres')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
             $table->timestamps();
 
             $table->unique(['book_id', 'genre_id']);
