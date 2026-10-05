@@ -61,15 +61,21 @@ Route::middleware('auth')->group(function () {
     // ジャンル一覧（書籍数付き。登録順）。
     Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
 
-    // ジャンル登録フォーム。仮ルート（実装はIssue #37）。
+    // ジャンル登録フォームを表示する（認証必須）。
     // 注意: "/genres/create" は下にある "/genres/{genre}" より前に登録すること。
-    Route::get('/genres/create', fn () => '準備中')->name('genres.create');
+    Route::get('/genres/create', [GenreController::class, 'create'])->name('genres.create');
+
+    // ジャンルを登録する（認証必須。成功時はジャンル一覧へ）。
+    Route::post('/genres', [GenreController::class, 'store'])->name('genres.store');
 
     // ジャンル詳細（紐づく書籍を10件/ページ、登録順）。
     Route::get('/genres/{genre}', [GenreController::class, 'show'])->name('genres.show');
 
-    // ジャンル編集フォーム。仮ルート（実装はIssue #37）。
-    Route::get('/genres/{genre}/edit', fn (Genre $genre) => '準備中')->name('genres.edit');
+    // ジャンル編集フォームを表示する（認証必須）。
+    Route::get('/genres/{genre}/edit', [GenreController::class, 'edit'])->name('genres.edit');
+
+    // ジャンルを更新する（認証必須。成功時はジャンル一覧へ）。
+    Route::put('/genres/{genre}', [GenreController::class, 'update'])->name('genres.update');
 
     // ジャンル削除。仮ルート（実装はIssue #38）。
     Route::delete('/genres/{genre}', fn (Genre $genre) => '準備中')->name('genres.destroy');
