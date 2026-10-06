@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
-use App\Models\Book;
 use App\Models\Genre;
 use App\Models\Review;
 use Illuminate\Support\Facades\Route;
@@ -79,13 +79,17 @@ Route::middleware('auth')->group(function () {
 
     // ジャンル削除。仮ルート（実装はIssue #38）。
     Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
+
+    // 書籍のお気に入りを切り替える（認証必須。登録済みなら解除、未登録なら追加）。
+    Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    // お気に入り一覧（認証必須。登録日時の新しい順に10件/ページ）。
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
 // --- 以下は別Issueで実装予定の仮ルート（books/show.blade.phpのroute()解決用） ---
-Route::post('/books/{book}/favorites', fn (Book $book) => '準備中')->name('favorites.toggle');
 Route::post('/reviews/{review}/like', fn (Review $review) => '準備中')->name('reviews.like');
-Route::get('/favorites', fn () => '準備中')->name('favorites.index');
 Route::get('/ranking', fn () => '準備中')->name('ranking.index');
