@@ -51,8 +51,8 @@ class BookDestroyTest extends TestCase
 
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
         $this->assertDatabaseMissing('book_genre', ['book_id' => $book->id]);
-        $this->assertDatabaseMissing('book_user', ['book_id' => $book->id]);
+        $this->assertDatabaseMissing('favorites', ['book_id' => $book->id]);
         $this->assertDatabaseMissing('reviews', ['book_id' => $book->id]);
-        $this->assertDatabaseMissing('review_user', ['review_id' => $review->id]);
+        $this->assertDatabaseMissing('review_likes', ['review_id' => $review->id]);
     }
 }

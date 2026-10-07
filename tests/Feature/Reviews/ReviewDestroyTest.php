@@ -29,7 +29,7 @@ class ReviewDestroyTest extends TestCase
     }
 
     /**
-     * レビューを削除すると、そのレビューに付いたいいね（review_user）も削除されることを確認する。
+     * レビューを削除すると、そのレビューに付いたいいね（review_likes）も削除されることを確認する。
      */
     public function test_deleting_review_cascades_likes(): void
     {
@@ -41,6 +41,6 @@ class ReviewDestroyTest extends TestCase
 
         $this->actingAs($user)->delete(route('reviews.destroy', $review));
 
-        $this->assertDatabaseMissing('review_user', ['review_id' => $review->id]);
+        $this->assertDatabaseMissing('review_likes', ['review_id' => $review->id]);
     }
 }

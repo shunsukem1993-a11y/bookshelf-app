@@ -27,7 +27,7 @@ class UserTest extends TestCase
     }
 
     /**
-     * User N : N Book（book_user：お気に入り）を確認する。
+     * User N : N Book（favorites：お気に入り）を確認する。
      */
     public function test_user_belongs_to_many_favorite_books(): void
     {
@@ -42,7 +42,7 @@ class UserTest extends TestCase
 
     /**
      * favoriteBooks()にwithTimestamps()が設定されており、
-     * book_userのcreated_at / updated_atが記録されることを確認する。
+     * favoritesのcreated_at / updated_atが記録されることを確認する。
      */
     public function test_favorite_books_pivot_has_timestamps(): void
     {
@@ -71,7 +71,7 @@ class UserTest extends TestCase
     }
 
     /**
-     * User N : N Review（review_user：いいね）を確認する。
+     * User N : N Review（review_likes：いいね）を確認する。
      */
     public function test_user_belongs_to_many_liked_reviews(): void
     {
@@ -86,7 +86,7 @@ class UserTest extends TestCase
 
     /**
      * likedReviews()にwithTimestamps()が設定されており、
-     * review_userのcreated_at / updated_atが記録されることを確認する。
+     * review_likesのcreated_at / updated_atが記録されることを確認する。
      */
     public function test_liked_reviews_pivot_has_timestamps(): void
     {

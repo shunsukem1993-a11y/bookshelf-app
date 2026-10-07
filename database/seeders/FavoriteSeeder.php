@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 class FavoriteSeeder extends Seeder
 {
     /**
-     * 各ユーザーに3〜5冊のお気に入りを設定する（book_userテーブル）。
+     * 各ユーザーに3〜5冊のお気に入りを設定する（favoritesテーブル）。
      *
      * 件数はユーザーのインデックスから3〜5の範囲で決定し、
      * 書籍はユーザーのインデックスを開始位置としてローテーションで選出する。

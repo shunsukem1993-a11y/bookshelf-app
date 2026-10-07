@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // お気に入り（ユーザー×書籍の多対多中間テーブル）
-        Schema::create('book_user', function (Blueprint $table) {
+        // いいね（ユーザー×レビューの多対多中間テーブル）
+        Schema::create('review_likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('book_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('review_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['user_id', 'book_id']);
+            $table->unique(['user_id', 'review_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('book_user');
+        Schema::dropIfExists('review_likes');
     }
 };

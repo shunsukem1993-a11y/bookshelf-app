@@ -77,7 +77,7 @@ erDiagram
         timestamp updated_at
     }
 
-    book_user {
+    favorites {
         bigint id PK
         bigint user_id FK
         bigint book_id FK
@@ -85,7 +85,7 @@ erDiagram
         timestamp updated_at
     }
 
-    review_user {
+    review_likes {
         bigint id PK
         bigint user_id FK
         bigint review_id FK
@@ -98,10 +98,10 @@ erDiagram
     books ||--o{ reviews : "has many"
     books ||--o{ book_genre : "has many"
     genres ||--o{ book_genre : "has many"
-    users ||--o{ book_user : "has many"
-    books ||--o{ book_user : "has many"
-    users ||--o{ review_user : "has many"
-    reviews ||--o{ review_user : "has many"
+    users ||--o{ favorites : "has many"
+    books ||--o{ favorites : "has many"
+    users ||--o{ review_likes : "has many"
+    reviews ||--o{ review_likes : "has many"
 ```
 
 ## 開発環境URL
