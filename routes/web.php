@@ -4,8 +4,8 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewLikeController;
 use App\Models\Genre;
-use App\Models\Review;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -85,11 +85,13 @@ Route::middleware('auth')->group(function () {
 
     // お気に入り一覧（認証必須。登録日時の新しい順に10件/ページ）。
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+
+    // レビューのいいねを切り替える（認証必須。登録済みなら解除、未登録なら追加）。
+    Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
 // --- 以下は別Issueで実装予定の仮ルート（books/show.blade.phpのroute()解決用） ---
-Route::post('/reviews/{review}/like', fn (Review $review) => '準備中')->name('reviews.like');
 Route::get('/ranking', fn () => '準備中')->name('ranking.index');
