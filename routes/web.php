@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Models\Genre;
@@ -93,5 +94,5 @@ Route::middleware('auth')->group(function () {
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
-// --- 以下は別Issueで実装予定の仮ルート（books/show.blade.phpのroute()解決用） ---
-Route::get('/ranking', fn () => '準備中')->name('ranking.index');
+// ランキング（レビュー平均評価TOP10）。レビューが1件もない書籍は対象外。ゲストも閲覧可。
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
