@@ -34,7 +34,7 @@ class GenreStoreTest extends TestCase
 
         $this->assertDatabaseHas('genres', ['name' => 'ミステリー']);
         $response->assertRedirect(route('genres.index'));
-        $response->assertSessionHas('success', 'ジャンルを登録しました。');
+        $response->assertSessionHas('success', 'ジャンルを作成しました。');
     }
 
     /**
