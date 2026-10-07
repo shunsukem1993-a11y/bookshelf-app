@@ -56,8 +56,8 @@ class BookStoreTest extends TestCase
             $book->genres->pluck('id')->toArray()
         );
 
-        $response->assertRedirect(route('books.index'));
-        $response->assertSessionHas('success', '書籍を登録しました。');
+        $response->assertRedirect(route('books.show', $book));
+        $response->assertSessionHas('success', '書籍情報を登録しました。');
     }
 
     /**
