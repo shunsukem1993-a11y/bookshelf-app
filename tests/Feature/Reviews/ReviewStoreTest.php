@@ -55,24 +55,27 @@ class ReviewStoreTest extends TestCase
     }
 
     /**
-     * 投稿済みのユーザーが再投稿すると、保存されずエラーになることを確認する。
+     * 投稿済みのユーザーが同じ書籍に再投稿すると、2件目として保存されることを確認する（1冊に複数回投稿できる）。
      */
-    public function test_duplicate_review_is_rejected(): void
+    public function test_user_can_review_same_book_multiple_times(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create();
         Review::factory()->create(['user_id' => $user->id, 'book_id' => $book->id]);
 
-        $response = $this->actingAs($user)
-            ->from(route('books.show', $book))
-            ->post(route('reviews.store', $book), [
-                'rating' => 3,
-                'comment' => '二回目の投稿です。',
-            ]);
+        $response = $this->actingAs($user)->post(route('reviews.store', $book), [
+            'rating' => 3,
+            'comment' => '二回目の投稿です。',
+        ]);
 
         $response->assertRedirect(route('books.show', $book));
-        $response->assertSessionHas('error', 'この書籍には既にレビューを投稿済みです。');
-        $this->assertDatabaseCount('reviews', 1);
+        $response->assertSessionHas('success', 'レビューを投稿しました。');
+        $this->assertDatabaseCount('reviews', 2);
+        $this->assertDatabaseHas('reviews', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'comment' => '二回目の投稿です。',
+        ]);
     }
 
     /**

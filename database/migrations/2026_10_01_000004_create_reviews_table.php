@@ -19,9 +19,6 @@ return new class extends Migration
             $table->tinyInteger('rating');
             $table->string('comment');
             $table->timestamps();
-
-            // 1人1冊1レビュー（同じユーザーが同じ書籍に重複投稿できないようにする）
-            $table->unique(['user_id', 'book_id']);
         });
     }
 

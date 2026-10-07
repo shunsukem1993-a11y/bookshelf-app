@@ -5,7 +5,6 @@ namespace Tests\Unit\Models;
 use App\Models\Book;
 use App\Models\Review;
 use App\Models\User;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,19 +48,5 @@ class ReviewTest extends TestCase
 
         $this->assertCount(1, $review->likedByUsers);
         $this->assertEquals($user->id, $review->likedByUsers->first()->id);
-    }
-
-    /**
-     * 同じユーザーが同じ書籍に重複してレビューすると、UNIQUE制約により例外になることを確認する。
-     */
-    public function test_duplicate_user_and_book_review_violates_unique_constraint(): void
-    {
-        $user = User::factory()->create();
-        $book = Book::factory()->create();
-        Review::factory()->create(['user_id' => $user->id, 'book_id' => $book->id]);
-
-        $this->expectException(UniqueConstraintViolationException::class);
-
-        Review::factory()->create(['user_id' => $user->id, 'book_id' => $book->id]);
     }
 }

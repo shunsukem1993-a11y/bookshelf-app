@@ -38,9 +38,9 @@ class ReviewDisplayTest extends TestCase
     }
 
     /**
-     * 投稿済みのログインユーザーには、フォームが表示されず、投稿済みの文言が表示されることを確認する。
+     * 投稿済みのログインユーザーにも、投稿フォームが表示されることを確認する（1冊に複数回投稿できる）。
      */
-    public function test_hides_form_and_shows_message_to_user_with_review(): void
+    public function test_shows_form_to_user_with_existing_review(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create();
@@ -48,8 +48,7 @@ class ReviewDisplayTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('books.show', $book));
 
-        $response->assertDontSee('name="rating"', false);
-        $response->assertSee('この書籍には既にレビューを投稿しています。');
+        $response->assertSee('name="rating"', false);
     }
 
     /**
