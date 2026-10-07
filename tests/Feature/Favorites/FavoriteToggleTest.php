@@ -26,8 +26,8 @@ class FavoriteToggleTest extends TestCase
             ->from(route('books.show', $book))
             ->post(route('favorites.toggle', $book));
 
-        $this->assertDatabaseHas('book_user', ['user_id' => $user->id, 'book_id' => $book->id]);
-        $this->assertDatabaseHas('book_user', ['user_id' => $user->id, 'book_id' => $other->id]);
+        $this->assertDatabaseHas('favorites', ['user_id' => $user->id, 'book_id' => $book->id]);
+        $this->assertDatabaseHas('favorites', ['user_id' => $user->id, 'book_id' => $other->id]);
         $response->assertRedirect(route('books.show', $book));
     }
 
@@ -42,7 +42,7 @@ class FavoriteToggleTest extends TestCase
 
         $this->actingAs($user)->post(route('favorites.toggle', $book));
 
-        $this->assertDatabaseMissing('book_user', ['user_id' => $user->id, 'book_id' => $book->id]);
+        $this->assertDatabaseMissing('favorites', ['user_id' => $user->id, 'book_id' => $book->id]);
     }
 
     /**
@@ -57,8 +57,8 @@ class FavoriteToggleTest extends TestCase
         $this->actingAs($user)->post(route('favorites.toggle', $book));
         $this->actingAs($user)->post(route('favorites.toggle', $book));
 
-        $this->assertDatabaseCount('book_user', 1);
-        $this->assertDatabaseHas('book_user', ['user_id' => $user->id, 'book_id' => $book->id]);
+        $this->assertDatabaseCount('favorites', 1);
+        $this->assertDatabaseHas('favorites', ['user_id' => $user->id, 'book_id' => $book->id]);
     }
 
     /**
@@ -71,6 +71,6 @@ class FavoriteToggleTest extends TestCase
 
         $this->actingAs($user)->post(route('favorites.toggle', $book));
 
-        $this->assertDatabaseHas('book_user', ['user_id' => $user->id, 'book_id' => $book->id]);
+        $this->assertDatabaseHas('favorites', ['user_id' => $user->id, 'book_id' => $book->id]);
     }
 }

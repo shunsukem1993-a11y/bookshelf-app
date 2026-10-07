@@ -63,7 +63,7 @@ class ReviewController extends Controller
     /**
      * レビューを削除する（投稿者本人のみ）。
      *
-     * 関連するいいね（review_user）はDBの外部キー制約（cascadeOnDelete）により自動的に削除される。
+     * 関連するいいね（review_likes）はDBの外部キー制約（cascadeOnDelete）により自動的に削除される。
      */
     public function destroy(Review $review): RedirectResponse
     {

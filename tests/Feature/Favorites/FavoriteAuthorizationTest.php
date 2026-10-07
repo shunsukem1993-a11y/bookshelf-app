@@ -21,7 +21,7 @@ class FavoriteAuthorizationTest extends TestCase
         $this->post(route('favorites.toggle', $book))->assertRedirect(route('login'));
         $this->get(route('favorites.index'))->assertRedirect(route('login'));
 
-        $this->assertDatabaseCount('book_user', 0);
+        $this->assertDatabaseCount('favorites', 0);
     }
 
     /**

@@ -70,7 +70,7 @@ class BookTest extends TestCase
     }
 
     /**
-     * Book N : N User（book_user：お気に入りしたユーザー）を確認する。
+     * Book N : N User（favorites：お気に入りしたユーザー）を確認する。
      */
     public function test_book_belongs_to_many_favorited_by_users(): void
     {

@@ -38,7 +38,7 @@ class ReviewTest extends TestCase
     }
 
     /**
-     * Review N : N User（review_user：いいねしたユーザー）を確認する。
+     * Review N : N User（review_likes：いいねしたユーザー）を確認する。
      */
     public function test_review_belongs_to_many_liked_by_users(): void
     {

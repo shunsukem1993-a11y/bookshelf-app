@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 class ReviewLikeSeeder extends Seeder
 {
     /**
-     * 各レビューに0〜3人のいいねを設定する（review_userテーブル、自分のレビューを除く）。
+     * 各レビューに0〜3人のいいねを設定する（review_likesテーブル、自分のレビューを除く）。
      *
      * いいね数はレビューのインデックスから0〜3の範囲で決定し、
      * 投稿者の次のユーザーから順に（投稿者自身を除外して）選出する。
