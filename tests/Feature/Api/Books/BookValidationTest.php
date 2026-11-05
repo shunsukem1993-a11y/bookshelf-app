@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class BookValidationTest extends TestCase
@@ -20,9 +21,10 @@ class BookValidationTest extends TestCase
     public function test_store_validates_common_rules(string $field, mixed $invalidValue, string $errorKey, string $expectedMessage): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($user->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload[$field] = $invalidValue;
 
         $response = $this->postJson(route('api.books.store'), $payload);
@@ -41,9 +43,10 @@ class BookValidationTest extends TestCase
     {
         $owner = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $owner->id]);
+        Sanctum::actingAs($owner);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($owner->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload['isbn'] = $book->isbn;
         $payload[$field] = $invalidValue;
 
@@ -54,18 +57,13 @@ class BookValidationTest extends TestCase
     }
 
     /**
-     * 登録・更新で共通のバリデーションケース（必須・境界値・形式）を提供する（API-26〜API-38）。
+     * 登録・更新で共通のバリデーションケース（必須・境界値・形式）を提供する（API-29〜API-38）。
      *
      * @return array<string, array{0: string, 1: mixed, 2: string, 3: string}>
      */
     public static function commonValidationCasesProvider(): array
     {
         return [
-            // API-26〜API-28: user_id
-            'user_id required (API-26)' => ['user_id', '', 'user_id', 'ユーザーIDは必須です。'],
-            'user_id non-integer (API-27)' => ['user_id', 'abc', 'user_id', 'ユーザーIDは整数で指定してください。'],
-            'user_id nonexistent (API-28)' => ['user_id', 999999, 'user_id', '指定されたユーザーは存在しません。'],
-
             // API-29: title
             'title required (API-29)' => ['title', '', 'title', 'タイトルは必須です。'],
             'title 256 chars (API-29)' => ['title', str_repeat('あ', 256), 'title', 'タイトルは255文字以内で入力してください。'],
@@ -97,9 +95,10 @@ class BookValidationTest extends TestCase
     public function test_store_requires_isbn(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($user->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload['isbn'] = '';
 
         $response = $this->postJson(route('api.books.store'), $payload);
@@ -114,9 +113,10 @@ class BookValidationTest extends TestCase
     public function test_store_rejects_isbn_not_13_digits(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($user->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload['isbn'] = '123456789012';
 
         $response = $this->postJson(route('api.books.store'), $payload);
@@ -131,10 +131,11 @@ class BookValidationTest extends TestCase
     public function test_store_rejects_duplicate_isbn(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $existing = Book::factory()->create(['isbn' => '1234567890123']);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($user->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload['isbn'] = $existing->isbn;
 
         $response = $this->postJson(route('api.books.store'), $payload);
@@ -149,9 +150,10 @@ class BookValidationTest extends TestCase
     public function test_store_accepts_missing_published_date(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($user->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         unset($payload['published_date']);
 
         $response = $this->postJson(route('api.books.store'), $payload);
@@ -170,10 +172,11 @@ class BookValidationTest extends TestCase
     {
         $owner = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $owner->id, 'isbn' => '1111111111111']);
+        Sanctum::actingAs($owner);
         $otherBook = Book::factory()->create(['isbn' => '2222222222222']);
         $genre = Genre::factory()->create();
 
-        $payload = $this->validPayload($owner->id, $genre->id);
+        $payload = $this->validPayload($genre->id);
         $payload['isbn'] = $otherBook->isbn;
 
         $response = $this->putJson(route('api.books.update', $book), $payload);
@@ -187,10 +190,9 @@ class BookValidationTest extends TestCase
      *
      * @return array<string, mixed>
      */
-    private function validPayload(int $userId, int $genreId): array
+    private function validPayload(int $genreId): array
     {
         return [
-            'user_id' => $userId,
             'title' => '有効なタイトル',
             'author' => '有効な著者',
             'isbn' => (string) fake()->unique()->numerify('#############'),
