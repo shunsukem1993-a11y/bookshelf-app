@@ -14,7 +14,7 @@ trait BookValidationRules
         return [
             'title' => ['required', 'string', 'max:255'],
             'author' => ['required', 'string', 'max:255'],
-            'published_date' => ['required', 'date_format:Y-m-d'],
+            'published_date' => ['nullable', 'date_format:Y-m-d'],
             'description' => ['nullable', 'string', 'max:255'],
             'image_url' => ['nullable', 'url', 'max:255'],
             'genres' => ['required', 'array', 'min:1'],
@@ -34,7 +34,6 @@ trait BookValidationRules
             'title.max' => 'タイトルは255文字以内で入力してください。',
             'author.required' => '著者名は必須です。',
             'author.max' => '著者名は255文字以内で入力してください。',
-            'published_date.required' => '出版日は必須です。',
             'published_date.date_format' => '出版日はYYYY-MM-DD形式で入力してください。',
             'description.max' => '説明は255文字以内で入力してください。',
             'image_url.url' => '画像URLはURL形式で入力してください。',
