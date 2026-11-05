@@ -12,8 +12,8 @@ class StoreBookRequest extends FormRequest
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 基本フェーズでは認証不要のため、常に許可する
-     * （応用フェーズでSanctum導入時に見直す）。
+     * 認証自体はルートの'auth:sanctum'ミドルウェアが担う。新規登録時は
+     * 認可対象の既存モデルが存在しないため、ここでは常に許可する。
      */
     public function authorize(): bool
     {

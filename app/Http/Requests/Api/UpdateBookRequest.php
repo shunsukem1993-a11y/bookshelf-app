@@ -13,12 +13,14 @@ class UpdateBookRequest extends FormRequest
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 基本フェーズでは認証・所有者チェックなしのため、常に許可する
-     * （応用フェーズでSanctum + BookPolicy導入時に見直す）。
+     * 認可をバリデーションより先に行うため、所有者以外の更新は入力内容に関係なく403となる。
+     * 未認証リクエストはルートの'auth:sanctum'ミドルウェアで401となるため、ここには到達しない。
      */
     public function authorize(): bool
     {
-        return true;
+        $book = $this->route('book');
+
+        return $this->user() !== null && $this->user()->can('update', $book);
     }
 
     /**
