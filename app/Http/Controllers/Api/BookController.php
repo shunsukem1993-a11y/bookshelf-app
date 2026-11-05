@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\IndexBookRequest;
+use App\Http\Requests\Api\StoreBookRequest;
+use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Resources\BookDetailResource;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\Models\Genre;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
@@ -63,5 +67,48 @@ class BookController extends Controller
         ]);
 
         return new BookDetailResource($book);
+    }
+
+    /**
+     * 書籍を新規登録する（認証不要。登録者はuser_idで指定する）。
+     */
+    public function store(StoreBookRequest $request): JsonResponse
+    {
+        $book = Book::create($request->safe()->except('genre_id'));
+        $book->genres()->sync($request->validated('genre_id'));
+        $book->load(['genres', 'reviews.user']);
+
+        return (new BookDetailResource($book))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    /**
+     * 書籍を更新する（認証不要。存在しないIDは404を返す）。
+     */
+    public function update(UpdateBookRequest $request, Book $book): BookDetailResource
+    {
+        $book->update($request->safe()->except('genre_id'));
+        $book->genres()->sync($request->validated('genre_id'));
+        $book->load([
+            'genres',
+            'reviews' => fn ($query) => $query->latest(),
+            'reviews.user',
+        ]);
+
+        return new BookDetailResource($book);
+    }
+
+    /**
+     * 書籍を削除する（認証不要。存在しないIDは404を返す）。
+     *
+     * 関連データ（book_genre・reviews・favorites）はDBの外部キー制約
+     * （cascadeOnDelete）により自動的に削除される。
+     */
+    public function destroy(Book $book): Response
+    {
+        $book->delete();
+
+        return response()->noContent();
     }
 }
