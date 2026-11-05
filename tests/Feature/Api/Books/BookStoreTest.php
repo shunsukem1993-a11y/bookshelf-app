@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class BookStoreTest extends TestCase
@@ -18,10 +19,10 @@ class BookStoreTest extends TestCase
     public function test_store_creates_book_with_valid_data(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genres = Genre::factory()->count(2)->create();
 
         $response = $this->postJson(route('api.books.store'), [
-            'user_id' => $user->id,
             'title' => '新しい本',
             'author' => '著者名',
             'isbn' => '1234567890123',
@@ -53,10 +54,10 @@ class BookStoreTest extends TestCase
     public function test_store_allows_omitting_description_and_image_url(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
         $response = $this->postJson(route('api.books.store'), [
-            'user_id' => $user->id,
             'title' => '最小構成の本',
             'author' => '著者名',
             'isbn' => '1111111111111',
@@ -73,22 +74,49 @@ class BookStoreTest extends TestCase
     }
 
     /**
-     * 未認証（Authorizationヘッダ無し）でも登録できることを確認する（API-18、基本フェーズは認証不要）。
+     * 未認証（Authorizationヘッダ無し）でPOSTすると401になり、登録されないことを確認する（★AP06）。
      */
-    public function test_store_does_not_require_authentication(): void
+    public function test_guest_cannot_store_book(): void
     {
-        $user = User::factory()->create();
         $genre = Genre::factory()->create();
 
         $response = $this->postJson(route('api.books.store'), [
-            'user_id' => $user->id,
-            'title' => '認証なしで登録される本',
+            'title' => '未認証で登録を試みる本',
             'author' => '著者名',
             'isbn' => '2222222222222',
             'published_date' => '2020-01-01',
             'genre_id' => [$genre->id],
         ]);
 
+        $response->assertStatus(401);
+        $response->assertJsonPath('message', 'Unauthenticated.');
+        $this->assertDatabaseCount('books', 0);
+    }
+
+    /**
+     * リクエストボディに他ユーザーのuser_idを指定しても無視され、
+     * 認証済みユーザー自身が登録者になることを確認する（★AP06：なりすまし防止）。
+     */
+    public function test_store_ignores_user_id_in_request_body(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        Sanctum::actingAs($user);
+        $genre = Genre::factory()->create();
+
+        $response = $this->postJson(route('api.books.store'), [
+            'user_id' => $otherUser->id,
+            'title' => 'なりすまし試行book',
+            'author' => '著者名',
+            'isbn' => '5555555555555',
+            'published_date' => '2020-01-01',
+            'genre_id' => [$genre->id],
+        ]);
+
         $response->assertStatus(201);
+        $this->assertDatabaseHas('books', [
+            'isbn' => '5555555555555',
+            'user_id' => $user->id,
+        ]);
     }
 }

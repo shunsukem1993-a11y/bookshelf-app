@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class BookUpdateTest extends TestCase
@@ -19,12 +20,12 @@ class BookUpdateTest extends TestCase
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
+        Sanctum::actingAs($user);
         $oldGenre = Genre::factory()->create();
         $book->genres()->attach($oldGenre);
         $newGenre = Genre::factory()->create();
 
         $response = $this->putJson(route('api.books.update', $book), [
-            'user_id' => $user->id,
             'title' => '更新後タイトル',
             'author' => '更新後著者',
             'isbn' => $book->isbn,
@@ -52,10 +53,10 @@ class BookUpdateTest extends TestCase
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id, 'isbn' => '3333333333333']);
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
         $response = $this->putJson(route('api.books.update', $book), [
-            'user_id' => $user->id,
             'title' => '更新後タイトル',
             'author' => '更新後著者',
             'isbn' => '3333333333333',
@@ -74,10 +75,10 @@ class BookUpdateTest extends TestCase
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
         $response = $this->patchJson(route('api.books.update', $book), [
-            'user_id' => $user->id,
             'title' => 'PATCHで更新',
             'author' => $book->author,
             'isbn' => $book->isbn,
@@ -91,14 +92,17 @@ class BookUpdateTest extends TestCase
 
     /**
      * 存在しない書籍IDを指定すると404とエラーメッセージが返ることを確認する（API-22）。
+     *
+     * 認証済みであることが前提（未認証の場合は、Authenticateミドルウェアが
+     * SubstituteBindingsより先に実行されるため401が優先される）。
      */
     public function test_update_returns_404_when_book_does_not_exist(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $genre = Genre::factory()->create();
 
         $response = $this->putJson(route('api.books.update', ['book' => 999999]), [
-            'user_id' => $user->id,
             'title' => 'X',
             'author' => 'Y',
             'isbn' => '4444444444444',
