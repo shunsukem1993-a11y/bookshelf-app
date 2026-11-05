@@ -6,43 +6,51 @@ use App\Models\Book;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class ReviewSeeder extends Seeder
 {
     /**
-     * レビューを32件投入する（各書籍2〜4件、ratingは3〜5）。
+     * 評価（1〜5）ごとの日本語コメントテンプレート。
      *
-     * 書籍ごとに3件（最後の1冊のみ2件）とし、レビュアーは書籍のインデックスを
-     * 開始位置として5人のユーザーをローテーションで選出する。
+     * ★応用：マイ読書レポートの評価分布グラフが意味のある分布になるよう、
+     * 評価を1〜5の全範囲に拡大し、評価別のコメントを用意する。
+     *
+     * @var array<int, array<int, string>>
+     */
+    private array $commentsByRating = [
+        5 => ['素晴らしい本でした！', '人生が変わりました。', '何度も読み返しています。'],
+        4 => ['とても参考になりました。', '読みやすくておすすめです。', '期待通りの内容でした。'],
+        3 => ['普通でした。', '可もなく不可もなく。', '期待したほどではなかった。'],
+        2 => ['少し期待外れでした。', '内容が薄い印象。', 'もう少し深掘りしてほしかった。'],
+        1 => ['残念ながら合いませんでした。', '期待と違いました。'],
+    ];
+
+    /**
+     * レビューを投入する（各書籍2〜4件、ratingは1〜5）。
+     *
+     * ★応用：レビュー件数・評価・投稿者をランダム化する。
+     * 1冊の書籍に同一ユーザーから複数レビューが付かないよう、
+     * random()で重複なしにユーザーを抽出する。
      */
     public function run(): void
     {
-        $users = User::orderBy('id')->get();
-        $books = Book::orderBy('id')->get();
-        $userCount = $users->count();
+        $users = User::all();
 
-        $commentsByRating = [
-            5 => 'とても良い本でした。読んでよかったです。',
-            4 => '読みやすく、参考になる内容でした。',
-            3 => '普通の内容でした。',
-        ];
-        $ratings = [5, 4, 3];
+        Book::all()->each(function (Book $book) use ($users) {
+            $reviewCount = rand(2, 4);
+            $reviewers = $users->random($reviewCount);
 
-        foreach ($books as $bookIndex => $book) {
-            $isLastBook = $bookIndex === ($books->count() - 1);
-            $reviewCount = $isLastBook ? 2 : 3;
-
-            for ($i = 0; $i < $reviewCount; $i++) {
-                $reviewer = $users[($bookIndex + $i) % $userCount];
-                $rating = $ratings[$i];
+            $reviewers->each(function (User $reviewer) use ($book) {
+                $rating = rand(1, 5);
 
                 Review::create([
                     'user_id' => $reviewer->id,
                     'book_id' => $book->id,
                     'rating' => $rating,
-                    'comment' => $commentsByRating[$rating],
+                    'comment' => Arr::random($this->commentsByRating[$rating]),
                 ]);
-            }
-        }
+            });
+        });
     }
 }

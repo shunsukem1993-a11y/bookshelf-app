@@ -10,11 +10,14 @@ use Illuminate\Database\Seeder;
 class BookSeeder extends Seeder
 {
     /**
-     * 書籍を11件投入し、ジャンルを紐づける。登録者はUser::first()（山田太郎）固定。
+     * 書籍を11件投入し、ジャンルを紐づける。
+     *
+     * 登録者はランダムなユーザーとする（★応用：マイ読書レポートで複数ユーザーの
+     * 所有書籍を表示するため）。
      */
     public function run(): void
     {
-        $registrant = User::first();
+        $users = User::all();
 
         $books = [
             [
@@ -122,7 +125,7 @@ class BookSeeder extends Seeder
             $book = Book::firstOrCreate(
                 ['isbn' => $bookData['isbn']],
                 [
-                    'user_id' => $registrant->id,
+                    'user_id' => $users->random()->id,
                     'title' => $bookData['title'],
                     'author' => $bookData['author'],
                     'published_date' => $bookData['published_date'],
