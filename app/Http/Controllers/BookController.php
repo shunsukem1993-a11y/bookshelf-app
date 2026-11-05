@@ -7,21 +7,48 @@ use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BookController extends Controller
 {
     /**
      * 書籍一覧を表示する（ゲストも閲覧可能）。
+     *
+     * ★応用：キーワード（title・author部分一致）・ジャンルでの絞り込みと、
+     * 並び順（newest/oldest/title/rating）に対応する。ページネーション時は
+     * 検索条件を維持する。
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $books = Book::with('genres')
-            ->withAvg('reviews', 'rating')
-            ->latest()
-            ->paginate(10);
+        $sort = $request->input('sort', 'newest');
 
-        return view('books.index', compact('books'));
+        $books = Book::query()
+            ->with('genres')
+            ->withAvg('reviews', 'rating')
+            ->when($request->filled('keyword'), function ($query) use ($request) {
+                $keyword = $request->string('keyword');
+
+                $query->where(
+                    fn ($q) => $q->where('title', 'like', "%{$keyword}%")
+                        ->orWhere('author', 'like', "%{$keyword}%")
+                );
+            })
+            ->when($request->filled('genre'), function ($query) use ($request) {
+                $genreId = $request->integer('genre');
+
+                $query->whereHas('genres', fn ($q) => $q->where('genres.id', $genreId));
+            })
+            ->when($sort === 'oldest', fn ($query) => $query->oldest())
+            ->when($sort === 'title', fn ($query) => $query->orderBy('title'))
+            ->when($sort === 'rating', fn ($query) => $query->orderByDesc('reviews_avg_rating'))
+            ->when(! in_array($sort, ['oldest', 'title', 'rating'], true), fn ($query) => $query->latest())
+            ->paginate(10)
+            ->withQueryString();
+
+        $genres = Genre::all();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     /**
