@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Book;
+use App\Models\ReadingPlan;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,5 +99,17 @@ class UserTest extends TestCase
         $pivot = $user->likedReviews->first()->pivot;
         $this->assertNotNull($pivot->created_at);
         $this->assertNotNull($pivot->updated_at);
+    }
+
+    /**
+     * User 1 : N ReadingPlan（作成した読書計画）を確認する。
+     */
+    public function test_user_has_many_reading_plans(): void
+    {
+        $user = User::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create(['user_id' => $user->id]);
+
+        $this->assertCount(1, $user->readingPlans);
+        $this->assertTrue($user->readingPlans->contains($readingPlan));
     }
 }

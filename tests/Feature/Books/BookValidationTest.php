@@ -61,7 +61,6 @@ class BookValidationTest extends TestCase
             // E-01, E-02, E-06, E-09, E-11
             'title required (E-01)' => ['title', '', 'title', 'タイトルは必須です。'],
             'author required (E-02)' => ['author', '', 'author', '著者名は必須です。'],
-            'published_date required (E-06)' => ['published_date', '', 'published_date', '出版日は必須です。'],
             'published_date invalid format (E-07)' => ['published_date', '2024/01/01', 'published_date', '出版日はYYYY-MM-DD形式で入力してください。'],
             'image_url invalid format (E-09)' => ['image_url', 'not-a-url', 'image_url', '画像URLはURL形式で入力してください。'],
             'genres empty array (E-11)' => ['genres', [], 'genres', 'ジャンルを1つ以上選択してください。'],
@@ -159,6 +158,26 @@ class BookValidationTest extends TestCase
         $response = $this->actingAs($user)->post(route('books.store'), $payload);
 
         $response->assertSessionDoesntHaveErrors();
+    }
+
+    /**
+     * published_dateを省略しても登録できることを確認する（★DR01: nullable化）。
+     */
+    public function test_store_accepts_missing_published_date(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = $this->validPayload($genre->id);
+        unset($payload['published_date']);
+
+        $response = $this->actingAs($user)->post(route('books.store'), $payload);
+
+        $response->assertSessionDoesntHaveErrors();
+        $this->assertDatabaseHas('books', [
+            'title' => $payload['title'],
+            'published_date' => null,
+        ]);
     }
 
     /**

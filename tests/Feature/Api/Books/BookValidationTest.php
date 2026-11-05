@@ -75,7 +75,6 @@ class BookValidationTest extends TestCase
             'author 256 chars (API-30)' => ['author', str_repeat('い', 256), 'author', '著者名は255文字以内で入力してください。'],
 
             // API-33: published_date
-            'published_date required (API-33)' => ['published_date', '', 'published_date', '出版日は必須です。'],
             'published_date invalid format (API-33)' => ['published_date', '2024/01/01', 'published_date', '出版日はYYYY-MM-DD形式で入力してください。'],
 
             // API-34: description
@@ -142,6 +141,26 @@ class BookValidationTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonPath('errors.isbn.0', '入力されたISBNはすでに登録されています。');
+    }
+
+    /**
+     * published_dateを省略しても登録できることを確認する（★DR01: nullable化）。
+     */
+    public function test_store_accepts_missing_published_date(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = $this->validPayload($user->id, $genre->id);
+        unset($payload['published_date']);
+
+        $response = $this->postJson(route('api.books.store'), $payload);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('books', [
+            'title' => $payload['title'],
+            'published_date' => null,
+        ]);
     }
 
     /**
