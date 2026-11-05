@@ -7,7 +7,8 @@ trait ApiBookValidationRules
     /**
      * ISBN以外の共通バリデーションルールを取得する。
      *
-     * 基本フェーズは認証なしのため、登録者を示すuser_idをリクエストボディで検証する。
+     * 登録者（user_id）は認証済みユーザー（Sanctum）から取得するため、
+     * リクエストボディでの指定は受け付けない。
      * ジャンルはWeb版の"genres"とは異なり、仕様書の表記に合わせ"genre_id"とする。
      *
      * @return array<string, mixed>
@@ -15,7 +16,6 @@ trait ApiBookValidationRules
     protected function commonBookRules(): array
     {
         return [
-            'user_id' => ['required', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'author' => ['required', 'string', 'max:255'],
             'published_date' => ['nullable', 'date_format:Y-m-d'],
@@ -34,9 +34,6 @@ trait ApiBookValidationRules
     protected function commonBookMessages(): array
     {
         return [
-            'user_id.required' => 'ユーザーIDは必須です。',
-            'user_id.integer' => 'ユーザーIDは整数で指定してください。',
-            'user_id.exists' => '指定されたユーザーは存在しません。',
             'title.required' => 'タイトルは必須です。',
             'title.max' => 'タイトルは255文字以内で入力してください。',
             'author.required' => '著者名は必須です。',

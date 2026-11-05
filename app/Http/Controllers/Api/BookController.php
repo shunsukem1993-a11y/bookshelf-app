@@ -70,11 +70,14 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍を新規登録する（認証不要。登録者はuser_idで指定する）。
+     * 書籍を新規登録する（★Sanctumトークン認証が必須。登録者は認証済みユーザーとする）。
      */
     public function store(StoreBookRequest $request): JsonResponse
     {
-        $book = Book::create($request->safe()->except('genre_id'));
+        $book = Book::create([
+            'user_id' => $request->user()->id,
+            ...$request->safe()->except('genre_id'),
+        ]);
         $book->genres()->sync($request->validated('genre_id'));
         $book->load(['genres', 'reviews.user']);
 
@@ -84,7 +87,8 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍を更新する（認証不要。存在しないIDは404を返す）。
+     * 書籍を更新する（★Sanctumトークン認証＋所有者本人のみ。認可はUpdateBookRequestで行う。
+     * 存在しないIDは404を返す）。
      */
     public function update(UpdateBookRequest $request, Book $book): BookDetailResource
     {
@@ -100,13 +104,15 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍を削除する（認証不要。存在しないIDは404を返す）。
+     * 書籍を削除する（★Sanctumトークン認証＋所有者本人のみ。存在しないIDは404を返す）。
      *
      * 関連データ（book_genre・reviews・favorites）はDBの外部キー制約
      * （cascadeOnDelete）により自動的に削除される。
      */
     public function destroy(Book $book): Response
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return response()->noContent();

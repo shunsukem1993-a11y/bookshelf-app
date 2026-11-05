@@ -2,10 +2,12 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -53,6 +55,23 @@ class Handler extends ExceptionHandler
             };
 
             return response()->json(['error' => $message], 404);
+        });
+
+        // ★ 公開APIでPolicyによる認可エラー（他ユーザーの書籍操作等）が発生した場合は、
+        // 日本語メッセージで403を返す。
+        //
+        // AuthorizationExceptionはHandler::prepareException()でrenderable()呼び出し前に
+        // AccessDeniedHttpExceptionへ変換されるため、こちらで変換後の例外を捕捉する。
+        $this->renderable(function (AccessDeniedHttpException $e, Request $request): ?JsonResponse {
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            if (! $e->getPrevious() instanceof AuthorizationException) {
+                return null;
+            }
+
+            return response()->json(['error' => 'この操作を実行する権限がありません。'], 403);
         });
     }
 }
