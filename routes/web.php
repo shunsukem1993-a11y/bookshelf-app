@@ -3,7 +3,10 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\ReadingPlanController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Models\Genre;
@@ -89,6 +92,18 @@ Route::middleware('auth')->group(function () {
 
     // レビューのいいねを切り替える（認証必須。登録済みなら解除、未登録なら追加）。
     Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
+
+    // ★ マイ読書レポート。仮ルート（統計算出の本実装はIssue #61）。
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // ★ 読書計画一覧。仮ルート（本実装はIssue #66）。
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+
+    // ★ 読書計画作成。仮ルート（一覧へリダイレクト。本実装はIssue #66）。
+    Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
+
+    // ★ 通知一覧。仮ルート（本実装はIssue #70）。
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
