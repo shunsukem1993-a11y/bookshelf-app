@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\IsbnSearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReadingPlanController;
@@ -35,6 +36,10 @@ Route::get('/books', [BookController::class, 'index'])->name('books.index');
  *       （"/books/create" が書籍ID="create"として解釈される）。
  */
 Route::middleware('auth')->group(function () {
+    // ★ ISBN検索（Google Books API連携）。書籍登録・編集フォームの自動入力に使用。
+    // 注意: "/books/isbn/{isbn}" は下にある "/books/{book}"（wildcard）より前に登録すること。
+    Route::get('/books/isbn/{isbn}', [IsbnSearchController::class, 'show'])->name('books.isbn-search');
+
     // 書籍登録フォームを表示する（認証必須）。
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
 
