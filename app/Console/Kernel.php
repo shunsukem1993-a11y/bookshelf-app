@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // ★ 読書計画の期限切れ判定とリマインダー通知を毎日0時に実行する。
+        $schedule->command('reading-plans:send-reminders')->daily();
     }
 
     /**
