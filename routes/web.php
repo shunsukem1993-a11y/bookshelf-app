@@ -101,11 +101,27 @@ Route::middleware('auth')->group(function () {
     // ★ マイ読書レポート。仮ルート（統計算出の本実装はIssue #61）。
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
-    // ★ 読書計画一覧。仮ルート（本実装はIssue #66）。
+    // ★ 読書計画一覧（状態による絞り込みに対応）。
     Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
 
-    // ★ 読書計画作成。仮ルート（一覧へリダイレクト。本実装はIssue #66）。
+    // ★ 読書計画作成フォームを表示する。
+    // 注意: "/reading-plans/create" は下にある "/reading-plans/{readingPlan}" より前に登録すること。
     Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
+
+    // ★ 読書計画を登録する。
+    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading-plans.store');
+
+    // ★ 読書計画編集フォームを表示する（作成者本人かつ未完了のみ。ReadingPlanPolicy@updateで認可）。
+    Route::get('/reading-plans/{readingPlan}/edit', [ReadingPlanController::class, 'edit'])->name('reading-plans.edit');
+
+    // ★ 読書計画を更新する（作成者本人かつ未完了のみ。UpdateReadingPlanRequestで認可）。
+    Route::put('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'update'])->name('reading-plans.update');
+
+    // ★ 読書計画を削除する（作成者本人のみ。ReadingPlanPolicy@deleteで認可）。
+    Route::delete('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'destroy'])->name('reading-plans.destroy');
+
+    // ★ 読書計画を読了済みにする（作成者本人かつ未完了のみ。ReadingPlanPolicy@updateで認可）。
+    Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 
     // ★ 通知一覧。仮ルート（本実装はIssue #70）。
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
