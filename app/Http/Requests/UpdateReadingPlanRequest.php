@@ -12,10 +12,8 @@ class UpdateReadingPlanRequest extends FormRequest
     /**
      * このリクエストを行う権限があるかどうかを判定する。
      *
-     * 認可をバリデーションより先に行うため、作成者以外の更新は入力内容に関係なく403となる。
-     *
-     * 注意: ReadingPlanPolicyはController実装時に別途追加する。現時点ではPolicyが
-     * 存在しないため、このメソッドは常にfalseを返す（Controller・ルート未実装のため未使用）。
+     * 認可をバリデーションより先に行うため、作成者以外・完了済みの計画の更新は
+     * 入力内容に関係なく403となる（ReadingPlanPolicy@updateで判定）。
      */
     public function authorize(): bool
     {
