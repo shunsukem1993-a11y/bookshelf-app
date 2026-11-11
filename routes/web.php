@@ -123,8 +123,11 @@ Route::middleware('auth')->group(function () {
     // ★ 読書計画を読了済みにする（作成者本人かつ未完了のみ。ReadingPlanPolicy@updateで認可）。
     Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 
-    // ★ 通知一覧。仮ルート（本実装はIssue #70）。
+    // ★ 通知一覧（本人の通知のみ、新しい順）。
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    // ★ 通知を既読にする（認証必須。本人の通知のみ。他人の通知IDの場合は404）。
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
 // 書籍詳細。ゲストも閲覧可。存在しないIDはLaravel標準の404ページを返す。
