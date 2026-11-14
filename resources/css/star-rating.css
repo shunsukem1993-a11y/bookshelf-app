@@ -6,44 +6,62 @@
  *   （:not(:hover) で、コンテナ内がホバーされていない間だけ選択中の色を適用する）
  * JavaScriptは使わず、DOMの並び順（1→5）もそのままにしている。
  *
+ * 色を塗る対象はTailwindの `peer-checked:text-yellow-400` 等と同じ <span> 要素。
+ * `.star-rating` + `:has()` + `:nth-of-type()` の組み合わせはTailwindの
+ * ユーティリティクラスより詳細度が高いため、既存のTailwindクラスを
+ * 変更・削除しなくても、このファイルの指定が優先して適用される。
+ *
  * このファイルはプレーンなCSSとして読み込まれるため、Bladeのループは使えない。
  * 星は5つで固定のため、5件のルールをそのまま書いている。
  */
 @layer components {
-    .star-rating {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .star-rating label {
-        cursor: pointer;
-        font-size: 1.5rem;
-        line-height: 1;
+    /*
+     * ホバー時のリセットルール。
+     *
+     * Tailwindの `peer-checked:text-yellow-400`（コンパイル後の詳細度 0,3,0）は
+     * ホバーの有無に関係なく「選択中（checked）の星」を常に黄色にし続けるため、
+     * 何もしないと「選択値の星」と「ホバー中の星」の両方が同時に黄色くなってしまう
+     * （例: 評価値3を選択中に星1へホバーすると、星1と星3が黄色になるバグ）。
+     *
+     * これを防ぐため、コンテナ内のどこかにカーソルが乗っている間は、
+     * 一旦すべての星をグレーに戻す。このルールの詳細度は (0,3,3)。
+     *
+     * 直後に続く「ホバー時ハイライト」ルール（1〜5パターン、
+     * `.star-rating:has(label:nth-of-type(N):hover) label:nth-of-type(-n+N) span`）も
+     * 同じ詳細度 (0,3,3) のため、詳細度だけでは優劣が決まらず、
+     * CSSの記述順（後に書いた方が勝つ）で決着する。
+     * そのため、このリセットルールは必ずハイライトルールより「前」に書く必要がある。
+     *
+     * ★注意: 将来このファイルの記述順を入れ替え、リセットルールが
+     * ハイライトルールより後に来てしまうと、ホバーしている星まで含めて
+     * 全てグレーになり、ホバー時の黄色表示が崩れるので注意すること。
+     */
+    .star-rating:has(input[name="rating"]):hover label span {
         color: #d1d5db; /* Tailwind text-gray-300 相当 */
     }
 
-    .star-rating:has(#rating-1:checked):not(:hover) label:nth-of-type(-n+1),
-    .star-rating:has(label:nth-of-type(1):hover) label:nth-of-type(-n+1) {
+    .star-rating:has(input[value="1"]:checked):not(:hover) label:nth-of-type(-n+1) span,
+    .star-rating:has(label:nth-of-type(1):hover) label:nth-of-type(-n+1) span {
         color: #facc15; /* Tailwind text-yellow-400 相当 */
     }
 
-    .star-rating:has(#rating-2:checked):not(:hover) label:nth-of-type(-n+2),
-    .star-rating:has(label:nth-of-type(2):hover) label:nth-of-type(-n+2) {
+    .star-rating:has(input[value="2"]:checked):not(:hover) label:nth-of-type(-n+2) span,
+    .star-rating:has(label:nth-of-type(2):hover) label:nth-of-type(-n+2) span {
         color: #facc15;
     }
 
-    .star-rating:has(#rating-3:checked):not(:hover) label:nth-of-type(-n+3),
-    .star-rating:has(label:nth-of-type(3):hover) label:nth-of-type(-n+3) {
+    .star-rating:has(input[value="3"]:checked):not(:hover) label:nth-of-type(-n+3) span,
+    .star-rating:has(label:nth-of-type(3):hover) label:nth-of-type(-n+3) span {
         color: #facc15;
     }
 
-    .star-rating:has(#rating-4:checked):not(:hover) label:nth-of-type(-n+4),
-    .star-rating:has(label:nth-of-type(4):hover) label:nth-of-type(-n+4) {
+    .star-rating:has(input[value="4"]:checked):not(:hover) label:nth-of-type(-n+4) span,
+    .star-rating:has(label:nth-of-type(4):hover) label:nth-of-type(-n+4) span {
         color: #facc15;
     }
 
-    .star-rating:has(#rating-5:checked):not(:hover) label:nth-of-type(-n+5),
-    .star-rating:has(label:nth-of-type(5):hover) label:nth-of-type(-n+5) {
+    .star-rating:has(input[value="5"]:checked):not(:hover) label:nth-of-type(-n+5) span,
+    .star-rating:has(label:nth-of-type(5):hover) label:nth-of-type(-n+5) span {
         color: #facc15;
     }
 }
