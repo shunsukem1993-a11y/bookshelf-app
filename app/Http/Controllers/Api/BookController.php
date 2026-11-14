@@ -9,7 +9,6 @@ use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Resources\BookDetailResource;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -24,11 +23,6 @@ class BookController extends Controller
      */
     public function index(IndexBookRequest $request): AnonymousResourceCollection
     {
-        // genre_idが指定されていて存在しない場合は404を返す
-        if ($request->filled('genre_id')) {
-            Genre::findOrFail($request->integer('genre_id'));
-        }
-
         $books = Book::query()
             ->with('genres')
             ->withAvg('reviews', 'rating')
