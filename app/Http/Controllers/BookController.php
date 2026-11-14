@@ -6,13 +6,15 @@ use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
+use App\Services\BookService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BookController extends Controller
 {
+    public function __construct(private readonly BookService $bookService) {}
+
     /**
      * 書籍一覧を表示する（ゲストも閲覧可能）。
      *
@@ -83,16 +85,7 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request): RedirectResponse
     {
-        $book = DB::transaction(function () use ($request) {
-            $book = Book::create([
-                'user_id' => $request->user()->id,
-                ...$request->safe()->except('genres'),
-            ]);
-
-            $book->genres()->sync($request->validated('genres'));
-
-            return $book;
-        });
+        $book = $this->bookService->createWithGenres($request->user(), $request->validated());
 
         return redirect()->route('books.show', $book)->with('success', '書籍情報を登録しました。');
     }
@@ -114,10 +107,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book): RedirectResponse
     {
-        DB::transaction(function () use ($request, $book) {
-            $book->update($request->safe()->except('genres'));
-            $book->genres()->sync($request->validated('genres'));
-        });
+        $this->bookService->updateWithGenres($book, $request->validated());
 
         return redirect()->route('books.show', $book)->with('success', '書籍を更新しました。');
     }

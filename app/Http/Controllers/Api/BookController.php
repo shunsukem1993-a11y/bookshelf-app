@@ -9,13 +9,15 @@ use App\Http\Requests\Api\UpdateBookRequest;
 use App\Http\Resources\BookDetailResource;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
+use App\Services\BookService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
+    public function __construct(private readonly BookService $bookService) {}
+
     /**
      * 書籍一覧を取得する（認証不要）。
      *
@@ -69,15 +71,7 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request): JsonResponse
     {
-        $book = DB::transaction(function () use ($request) {
-            $book = Book::create([
-                'user_id' => $request->user()->id,
-                ...$request->safe()->except('genres'),
-            ]);
-            $book->genres()->sync($request->validated('genres'));
-
-            return $book;
-        });
+        $book = $this->bookService->createWithGenres($request->user(), $request->validated());
 
         $book->load(['genres', 'reviews.user']);
 
@@ -92,10 +86,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book): BookDetailResource
     {
-        DB::transaction(function () use ($request, $book) {
-            $book->update($request->safe()->except('genres'));
-            $book->genres()->sync($request->validated('genres'));
-        });
+        $book = $this->bookService->updateWithGenres($book, $request->validated());
 
         $book->load([
             'genres',
