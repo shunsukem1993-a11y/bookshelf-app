@@ -56,8 +56,12 @@ class BookController extends Controller
 
     /**
      * 書籍詳細を表示する（ゲストも閲覧可能）。
+     *
+     * お気に入り・いいねの判定（Auth::user()->favoriteBooks / likedReviews、Blade側）に
+     * 必要な分だけ、この画面に関係するIDに絞って事前読み込みする。
+     * 全件取得を避けるため、対象を「この書籍」「この書籍の表示対象レビュー」に限定する。
      */
-    public function show(Book $book): View
+    public function show(Request $request, Book $book): View
     {
         // レビューは投稿日時の新しい順に表示する
         $book->load([
@@ -65,6 +69,11 @@ class BookController extends Controller
             'reviews' => fn ($query) => $query->latest(),
             'reviews.user',
             'reviews.likedByUsers',
+        ]);
+
+        $request->user()?->load([
+            'favoriteBooks' => fn ($query) => $query->where('books.id', $book->id)->select('books.id'),
+            'likedReviews' => fn ($query) => $query->whereIn('reviews.id', $book->reviews->pluck('id'))->select('reviews.id'),
         ]);
 
         return view('books.show', compact('book'));
