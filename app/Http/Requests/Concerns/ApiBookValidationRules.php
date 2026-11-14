@@ -9,7 +9,7 @@ trait ApiBookValidationRules
      *
      * 登録者（user_id）は認証済みユーザー（Sanctum）から取得するため、
      * リクエストボディでの指定は受け付けない。
-     * ジャンルはWeb版の"genres"とは異なり、仕様書の表記に合わせ"genre_id"とする。
+     * ジャンルの項目名は仕様書の表記に合わせ、Web版と同じ"genres"とする。
      *
      * @return array<string, mixed>
      */
@@ -21,32 +21,29 @@ trait ApiBookValidationRules
             'published_date' => ['required', 'date_format:Y-m-d'],
             'description' => ['nullable', 'string', 'max:255'],
             'image_url' => ['nullable', 'url', 'max:255'],
-            'genre_id' => ['required', 'array', 'min:1'],
-            'genre_id.*' => ['required', 'integer', 'exists:genres,id'],
+            'genres' => ['required', 'array', 'min:1'],
+            'genres.*' => ['required', 'integer', 'exists:genres,id'],
         ];
     }
 
     /**
      * ISBN以外の共通バリデーションエラーメッセージを取得する。
      *
+     * title.required・title.max・author.required・author.max・
+     * published_date.required・published_date.date_format・
+     * description.max・image_url.url・image_url.maxは、
+     * lang/ja/validation.phpの汎用メッセージと完全に一致するため、
+     * ここでは個別に定義しない。
+     *
      * @return array<string, string>
      */
     protected function commonBookMessages(): array
     {
         return [
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'author.required' => '著者名は必須です。',
-            'author.max' => '著者名は255文字以内で入力してください。',
-            'published_date.required' => '出版日は必須です。',
-            'published_date.date_format' => '出版日はYYYY-MM-DD形式で入力してください。',
-            'description.max' => '説明は255文字以内で入力してください。',
-            'image_url.url' => '画像URLはURL形式で入力してください。',
-            'image_url.max' => '画像URLは255文字以内で入力してください。',
-            'genre_id.required' => 'ジャンルを1つ以上選択してください。',
-            'genre_id.min' => 'ジャンルを1つ以上選択してください。',
-            'genre_id.*.integer' => 'ジャンルIDは整数で指定してください。',
-            'genre_id.*.exists' => '指定されたジャンルは存在しません。',
+            'genres.required' => 'ジャンルを1つ以上選択してください。',
+            'genres.min' => 'ジャンルを1つ以上選択してください。',
+            'genres.*.integer' => 'ジャンルIDは整数で指定してください。',
+            'genres.*.exists' => '指定されたジャンルは存在しません。',
         ];
     }
 }

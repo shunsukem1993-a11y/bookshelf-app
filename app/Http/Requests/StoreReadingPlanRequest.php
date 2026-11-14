@@ -54,7 +54,7 @@ class StoreReadingPlanRequest extends FormRequest
     {
         return [
             'book_id.required' => '書籍を選択してください。',
-            'book_id.exists' => '指定された書籍は存在しません。',
+            // book_id.existsはlang/ja/validation.phpの汎用メッセージと完全に一致するため、個別に定義しない。
             'book_id.unique' => 'この書籍は既に進行中の読書計画があります。',
             ...$this->targetDateMessages(),
         ];

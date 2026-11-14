@@ -41,13 +41,12 @@ class IndexBookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'keyword.max' => 'キーワードは255文字以内で入力してください。',
-            'genre_id.integer' => 'ジャンルIDは整数で指定してください。',
+            // keyword.max・genre_id.integer・page.integer・per_page.integerは、
+            // lang/ja/validation.phpの汎用メッセージと完全に一致するため、
+            // ここでは個別に定義しない。
             'genre_id.min' => 'ジャンルIDは1以上を指定してください。',
             'genre_id.exists' => '指定されたジャンルが見つかりませんでした。',
-            'page.integer' => 'ページ番号は整数で指定してください。',
             'page.min' => 'ページ番号は1以上を指定してください。',
-            'per_page.integer' => '1ページあたりの件数は整数で指定してください。',
             'per_page.min' => '1ページあたりの件数は1以上を指定してください。',
             'per_page.max' => '1ページあたりの件数は100以下で指定してください。',
         ];

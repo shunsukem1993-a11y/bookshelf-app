@@ -46,7 +46,7 @@ class BookTransactionRollbackTest extends TestCase
             'author' => '著者',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
         $formRequest->setContainer($this->app);
         $formRequest->setUserResolver(fn () => $user);
@@ -83,7 +83,7 @@ class BookTransactionRollbackTest extends TestCase
             'author' => '更新後著者',
             'isbn' => $book->isbn,
             'published_date' => '2021-02-02',
-            'genre_id' => [$doomedGenre->id],
+            'genres' => [$doomedGenre->id],
         ]);
         $formRequest->setContainer($this->app);
         $formRequest->setUserResolver(fn () => $owner);

@@ -72,9 +72,9 @@ class BookController extends Controller
         $book = DB::transaction(function () use ($request) {
             $book = Book::create([
                 'user_id' => $request->user()->id,
-                ...$request->safe()->except('genre_id'),
+                ...$request->safe()->except('genres'),
             ]);
-            $book->genres()->sync($request->validated('genre_id'));
+            $book->genres()->sync($request->validated('genres'));
 
             return $book;
         });
@@ -93,8 +93,8 @@ class BookController extends Controller
     public function update(UpdateBookRequest $request, Book $book): BookDetailResource
     {
         DB::transaction(function () use ($request, $book) {
-            $book->update($request->safe()->except('genre_id'));
-            $book->genres()->sync($request->validated('genre_id'));
+            $book->update($request->safe()->except('genres'));
+            $book->genres()->sync($request->validated('genres'));
         });
 
         $book->load([

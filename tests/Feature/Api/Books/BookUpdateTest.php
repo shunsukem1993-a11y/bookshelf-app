@@ -30,7 +30,7 @@ class BookUpdateTest extends TestCase
             'author' => '更新後著者',
             'isbn' => $book->isbn,
             'published_date' => '2021-01-01',
-            'genre_id' => [$newGenre->id],
+            'genres' => [$newGenre->id],
         ]);
 
         $response->assertOk();
@@ -61,7 +61,7 @@ class BookUpdateTest extends TestCase
             'author' => '更新後著者',
             'isbn' => '3333333333333',
             'published_date' => '2021-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertOk();
@@ -83,7 +83,7 @@ class BookUpdateTest extends TestCase
             'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => '2021-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertOk();
@@ -107,7 +107,7 @@ class BookUpdateTest extends TestCase
             'author' => 'Y',
             'isbn' => '4444444444444',
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertStatus(404);

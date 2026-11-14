@@ -22,15 +22,14 @@ class LoginRequest extends FortifyLoginRequest
     /**
      * バリデーションエラーメッセージを取得する。
      *
+     * email.required・email.email・email.max・password.requiredは、
+     * lang/ja/validation.phpの汎用メッセージと完全に一致するため、
+     * ここでは個別に定義しない。
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
-        return [
-            'email.required' => 'メールアドレスは必須です。',
-            'email.email' => 'メールアドレスはメール形式で入力してください。',
-            'email.max' => 'メールアドレスは255文字以内で入力してください。',
-            'password.required' => 'パスワードは必須です。',
-        ];
+        return [];
     }
 }
