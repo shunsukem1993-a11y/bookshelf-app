@@ -19,8 +19,7 @@ class IndexBookRequest extends FormRequest
     /**
      * バリデーション対象の属性とルールを取得する。
      *
-     * genre_idの存在チェックはここでは行わない（存在しない場合は
-     * コントローラー側でModelNotFoundExceptionを発生させ、404を返す）。
+     * genre_idの存在チェックもここで行う（存在しない場合は422を返す）。
      *
      * @return array<string, mixed>
      */
@@ -28,7 +27,7 @@ class IndexBookRequest extends FormRequest
     {
         return [
             'keyword' => ['nullable', 'string', 'max:255'],
-            'genre_id' => ['nullable', 'integer', 'min:1'],
+            'genre_id' => ['nullable', 'integer', 'min:1', 'exists:genres,id'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
@@ -45,6 +44,7 @@ class IndexBookRequest extends FormRequest
             'keyword.max' => 'キーワードは255文字以内で入力してください。',
             'genre_id.integer' => 'ジャンルIDは整数で指定してください。',
             'genre_id.min' => 'ジャンルIDは1以上を指定してください。',
+            'genre_id.exists' => '指定されたジャンルが見つかりませんでした。',
             'page.integer' => 'ページ番号は整数で指定してください。',
             'page.min' => 'ページ番号は1以上を指定してください。',
             'per_page.integer' => '1ページあたりの件数は整数で指定してください。',

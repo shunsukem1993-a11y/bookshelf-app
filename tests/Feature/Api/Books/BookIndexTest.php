@@ -141,14 +141,14 @@ class BookIndexTest extends TestCase
     }
 
     /**
-     * 存在しないgenre_idを指定すると404とエラーメッセージが返ることを確認する（API-09）。
+     * 存在しないgenre_idを指定すると422とエラーメッセージが返ることを確認する（API-09）。
      */
-    public function test_index_returns_404_when_genre_id_does_not_exist(): void
+    public function test_index_returns_422_when_genre_id_does_not_exist(): void
     {
         $response = $this->getJson(route('api.books.index', ['genre_id' => 999999]));
 
-        $response->assertStatus(404);
-        $response->assertJsonPath('error', '指定されたジャンルが見つかりませんでした。');
+        $response->assertStatus(422);
+        $response->assertJsonPath('errors.genre_id.0', '指定されたジャンルが見つかりませんでした。');
     }
 
     /**
