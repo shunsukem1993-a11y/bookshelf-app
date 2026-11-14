@@ -19,13 +19,14 @@ trait ReadingPlanValidationRules
     /**
      * 読書計画の登録・編集で共通のバリデーションエラーメッセージを取得する。
      *
+     * target_date.required・target_date.date_formatは、
+     * lang/ja/validation.phpの汎用メッセージと完全に一致するため、
+     * ここでは個別に定義しない。
+     *
      * @return array<string, string>
      */
     protected function targetDateMessages(): array
     {
-        return [
-            'target_date.required' => '期日は必須です。',
-            'target_date.date_format' => '期日はYYYY-MM-DD形式で入力してください。',
-        ];
+        return [];
     }
 }

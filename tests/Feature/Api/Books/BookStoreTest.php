@@ -29,7 +29,7 @@ class BookStoreTest extends TestCase
             'published_date' => '2020-01-01',
             'description' => '説明文',
             'image_url' => 'https://example.com/image.jpg',
-            'genre_id' => $genres->pluck('id')->toArray(),
+            'genres' => $genres->pluck('id')->toArray(),
         ]);
 
         $response->assertStatus(201);
@@ -62,7 +62,7 @@ class BookStoreTest extends TestCase
             'author' => '著者名',
             'isbn' => '1111111111111',
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertStatus(201);
@@ -85,7 +85,7 @@ class BookStoreTest extends TestCase
             'author' => '著者名',
             'isbn' => '2222222222222',
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertStatus(401);
@@ -110,7 +110,7 @@ class BookStoreTest extends TestCase
             'author' => '著者名',
             'isbn' => '5555555555555',
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertStatus(201);

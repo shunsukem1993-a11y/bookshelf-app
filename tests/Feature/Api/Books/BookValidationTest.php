@@ -83,10 +83,10 @@ class BookValidationTest extends TestCase
             'image_url invalid format (API-35)' => ['image_url', 'not-a-url', 'image_url', '画像URLはURL形式で入力してください。'],
             'image_url 256 chars (API-35)' => ['image_url', 'https://example.com/'.str_repeat('a', 240), 'image_url', '画像URLは255文字以内で入力してください。'],
 
-            // API-36〜API-38: genre_id
-            'genre_id empty array (API-36)' => ['genre_id', [], 'genre_id', 'ジャンルを1つ以上選択してください。'],
-            'genre_id nonexistent id (API-37)' => ['genre_id', [999999], 'genre_id.0', '指定されたジャンルは存在しません。'],
-            'genre_id non-integer (API-38)' => ['genre_id', ['abc'], 'genre_id.0', 'ジャンルIDは整数で指定してください。'],
+            // API-36〜API-38: genres
+            'genres empty array (API-36)' => ['genres', [], 'genres', 'ジャンルを1つ以上選択してください。'],
+            'genres nonexistent id (API-37)' => ['genres', [999999], 'genres.0', '指定されたジャンルは存在しません。'],
+            'genres non-integer (API-38)' => ['genres', ['abc'], 'genres.0', 'ジャンルIDは整数で指定してください。'],
         ];
     }
 
@@ -179,7 +179,7 @@ class BookValidationTest extends TestCase
             'published_date' => '2020-01-01',
             'description' => '説明文',
             'image_url' => 'https://example.com/image.jpg',
-            'genre_id' => [$genreId],
+            'genres' => [$genreId],
         ];
     }
 }

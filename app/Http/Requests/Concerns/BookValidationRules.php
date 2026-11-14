@@ -25,19 +25,16 @@ trait BookValidationRules
     /**
      * ISBN以外の共通バリデーションエラーメッセージを取得する。
      *
+     * title.required・title.max・author.required・author.max・
+     * published_date.date_format・description.max・image_url.url・
+     * image_url.maxは、lang/ja/validation.phpの汎用メッセージと
+     * 完全に一致するため、ここでは個別に定義しない。
+     *
      * @return array<string, string>
      */
     protected function commonBookMessages(): array
     {
         return [
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'author.required' => '著者名は必須です。',
-            'author.max' => '著者名は255文字以内で入力してください。',
-            'published_date.date_format' => '出版日はYYYY-MM-DD形式で入力してください。',
-            'description.max' => '説明は255文字以内で入力してください。',
-            'image_url.url' => '画像URLはURL形式で入力してください。',
-            'image_url.max' => '画像URLは255文字以内で入力してください。',
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',
             'genres.*.integer' => 'ジャンルIDは整数で指定してください。',

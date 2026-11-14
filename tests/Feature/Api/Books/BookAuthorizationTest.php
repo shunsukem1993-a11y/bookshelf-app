@@ -56,7 +56,7 @@ class BookAuthorizationTest extends TestCase
             'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ]);
 
         $response->assertOk();
@@ -148,7 +148,7 @@ class BookAuthorizationTest extends TestCase
             'author' => '有効な著者',
             'isbn' => $book->isbn,
             'published_date' => '2020-01-01',
-            'genre_id' => [$genre->id],
+            'genres' => [$genre->id],
         ];
     }
 }
