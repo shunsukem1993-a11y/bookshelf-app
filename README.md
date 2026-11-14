@@ -168,10 +168,6 @@ erDiagram
     DB_USERNAME=sail
     DB_PASSWORD=password
 
-    MAIL_MAILER=smtp
-    MAIL_HOST=mailpit
-    MAIL_PORT=1025
-
 3. **Composer依存パッケージのインストール**
 
     Composerで依存パッケージをインストールします。
