@@ -14,8 +14,11 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
-        // ★ 読書計画の期限切れ判定とリマインダー通知を毎日0時に実行する。
-        $schedule->command('reading-plans:send-reminders')->daily();
+        // ★ 読書計画の期限切れ判定とリマインダー通知を毎日20時（JST）に実行する。
+        // 日付判定ロジック（today()等）はUTC基準のまま変更しない。実行時刻のみJSTで指定する。
+        $schedule->command('reading-plans:send-reminders')
+            ->timezone('Asia/Tokyo')
+            ->dailyAt('20:00');
     }
 
     /**
