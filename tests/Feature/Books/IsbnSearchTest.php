@@ -57,6 +57,48 @@ class IsbnSearchTest extends TestCase
     }
 
     /**
+     * APIキーが設定されている場合、リクエストにkeyパラメータが付与されることを確認する。
+     */
+    public function test_request_includes_api_key_when_configured(): void
+    {
+        config(['services.google_books.key' => 'dummy-api-key']);
+
+        $user = User::factory()->create();
+
+        Http::fake([
+            'www.googleapis.com/*' => Http::response([
+                'items' => [['volumeInfo' => ['title' => '吾輩は猫である']]],
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('books.isbn-search', ['isbn' => '9784101010014']));
+
+        $response->assertOk();
+        Http::assertSent(fn ($request) => $request['key'] === 'dummy-api-key');
+    }
+
+    /**
+     * APIキーが未設定の場合、リクエストにkeyパラメータが付与されないことを確認する。
+     */
+    public function test_request_omits_api_key_when_not_configured(): void
+    {
+        config(['services.google_books.key' => null]);
+
+        $user = User::factory()->create();
+
+        Http::fake([
+            'www.googleapis.com/*' => Http::response([
+                'items' => [['volumeInfo' => ['title' => '吾輩は猫である']]],
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('books.isbn-search', ['isbn' => '9784101010014']));
+
+        $response->assertOk();
+        Http::assertSent(fn ($request) => ! isset($request['key']));
+    }
+
+    /**
      * 複数著者の場合、「、」区切りで連結されることを確認する（issue #60）。
      */
     public function test_multiple_authors_are_joined_with_japanese_comma(): void
