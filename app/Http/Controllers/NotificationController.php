@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\View\View;
 
 class NotificationController extends Controller
@@ -24,11 +25,14 @@ class NotificationController extends Controller
     /**
      * 通知を既読にする（認証必須。本人の通知のみ）。
      *
-     * 本人の通知に限定して検索するため、他人の通知IDを指定した場合は404となる。
+     * 存在しない通知IDの場合は404、他人の通知IDを指定した場合はDatabaseNotificationPolicyにより403となる。
      */
-    public function markAsRead(Request $request, string $id): RedirectResponse
+    public function markAsRead(string $id): RedirectResponse
     {
-        $notification = $request->user()->notifications()->where('id', $id)->firstOrFail();
+        $notification = DatabaseNotification::findOrFail($id);
+
+        $this->authorize('markAsRead', $notification);
+
         $notification->markAsRead();
 
         return redirect()->route('notifications.index');

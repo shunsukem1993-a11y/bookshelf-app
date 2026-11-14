@@ -126,7 +126,7 @@ Route::middleware('auth')->group(function () {
     // ★ 通知一覧（本人の通知のみ、新しい順）。
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 
-    // ★ 通知を既読にする（認証必須。本人の通知のみ。他人の通知IDの場合は404）。
+    // ★ 通知を既読にする（認証必須。本人の通知のみ。他人の通知IDの場合は403、存在しないIDの場合は404）。
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
