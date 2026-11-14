@@ -32,9 +32,9 @@ erDiagram
         bigint id PK
         varchar name
         varchar email "UNIQUE"
-        timestamp email_verified_at
+        timestamp email_verified_at "nullable"
         varchar password
-        varchar remember_token
+        varchar remember_token "nullable"
         timestamp created_at
         timestamp updated_at
     }
@@ -52,7 +52,7 @@ erDiagram
         varchar title
         varchar author
         varchar isbn "UNIQUE"
-        date published_date
+        date published_date "nullable"
         varchar description "nullable"
         varchar image_url "nullable"
         timestamp created_at
@@ -93,6 +93,28 @@ erDiagram
         timestamp updated_at
     }
 
+    reading_plans {
+        bigint id PK
+        bigint user_id FK
+        bigint book_id FK
+        date target_date
+        timestamp completed_at "nullable"
+        varchar status "PHP Enum(ReadingPlanStatus)をcast"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    notifications {
+        char id PK "uuid"
+        varchar type
+        varchar notifiable_type "polymorphic"
+        bigint notifiable_id "polymorphic"
+        text data
+        timestamp read_at "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
     users ||--o{ books : "has many"
     users ||--o{ reviews : "has many"
     books ||--o{ reviews : "has many"
@@ -102,6 +124,9 @@ erDiagram
     books ||--o{ favorites : "has many"
     users ||--o{ review_likes : "has many"
     reviews ||--o{ review_likes : "has many"
+    users ||--o{ reading_plans : "has many"
+    books ||--o{ reading_plans : "has many"
+    users ||--o{ notifications : "has many (notifiable, polymorphic)"
 ```
 
 ## 開発環境URL
@@ -119,11 +144,11 @@ erDiagram
 
     リポジトリをクローンします。
     ```bash
-    git clone git@github.com:shunsukem1993-a11y/attendance-app.git
+    git clone git@github.com:shunsukem1993-a11y/bookshelf-app.git
     ```
     クローンしたプロジェクトディレクトリに移動します。
     ```bash
-    cd attendance-app
+    cd bookshelf-app
     ```
 
 2. **.envファイルの準備**
@@ -226,3 +251,8 @@ PHPUnitによるテストを実行する場合は、以下のコマンドを実�
 
 | HTTPメソッド | URI | 概要 | 認証| 認証・認可 |
 | ---------- | ---------------------------------------------- | ------ | --------- | --------------------------------------- |
+| GET | /api/v1/books | 書籍一覧を取得する | 不要 | 不要 |
+| GET | /api/v1/books/{book} | 書籍詳細を取得する | 不要 | 不要 |
+| POST | /api/v1/books | 書籍を新規登録する | 不要 | ★ Sanctum 必須 |
+| PUT / PATCH | /api/v1/books/{book} | 書籍を更新する | 不要 | ★ Sanctum + BookPolicy（所有者のみ） |
+| DELETE | /api/v1/books/{book} | 書籍を削除する | 不要 | ★ Sanctum + BookPolicy（所有者のみ） |
