@@ -20,9 +20,13 @@ class GoogleBooksClient
      */
     public function findByIsbn(string $isbn): ?array
     {
-        $response = Http::timeout(5)->get(self::BASE_URL, [
-            'q' => "isbn:{$isbn}",
-        ]);
+        $query = ['q' => "isbn:{$isbn}"];
+
+        if ($apiKey = config('services.google_books.key')) {
+            $query['key'] = $apiKey;
+        }
+
+        $response = Http::timeout(5)->get(self::BASE_URL, $query);
 
         $response->throw();
 
