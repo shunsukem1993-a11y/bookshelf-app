@@ -321,4 +321,4 @@ PHPUnitによるテストを実行する場合は、以下のコマンドを実�
 | GET | /api/v1/books/{book} | 書籍詳細を取得する | 不要 | 不要 |
 | POST | /api/v1/books | 書籍を新規登録する | Sanctum認証必須 | Sanctum |
 | PUT / PATCH | /api/v1/books/{book} | 書籍を更新する | Sanctum認証必須 | Sanctum + BookPolicy（所有者のみ） |
-| DELETE | /api/v1/books/{book} | 書籍を削除する | Sanctum認証必須 | ★ Sanctum + BookPolicy（所有者のみ） |
+| DELETE | /api/v1/books/{book} | 書籍を削除する | Sanctum認証必須 | Sanctum + BookPolicy（所有者のみ） |
