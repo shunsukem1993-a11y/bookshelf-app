@@ -17,7 +17,9 @@
 - Vite
 - Tailwind CSS 3.4
 - @tailwindcss/forms
+- Alpine.js
 - Laravel Fortify
+- Laravel Sanctum
 - Docker / Laravel Sail
 - phpMyAdmin
 - PHPUnit 10.x
