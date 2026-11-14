@@ -12,6 +12,7 @@ use App\Models\Book;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -68,11 +69,16 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request): JsonResponse
     {
-        $book = Book::create([
-            'user_id' => $request->user()->id,
-            ...$request->safe()->except('genre_id'),
-        ]);
-        $book->genres()->sync($request->validated('genre_id'));
+        $book = DB::transaction(function () use ($request) {
+            $book = Book::create([
+                'user_id' => $request->user()->id,
+                ...$request->safe()->except('genre_id'),
+            ]);
+            $book->genres()->sync($request->validated('genre_id'));
+
+            return $book;
+        });
+
         $book->load(['genres', 'reviews.user']);
 
         return (new BookDetailResource($book))
@@ -86,8 +92,11 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book): BookDetailResource
     {
-        $book->update($request->safe()->except('genre_id'));
-        $book->genres()->sync($request->validated('genre_id'));
+        DB::transaction(function () use ($request, $book) {
+            $book->update($request->safe()->except('genre_id'));
+            $book->genres()->sync($request->validated('genre_id'));
+        });
+
         $book->load([
             'genres',
             'reviews' => fn ($query) => $query->latest(),
