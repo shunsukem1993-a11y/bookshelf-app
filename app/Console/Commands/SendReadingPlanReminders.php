@@ -8,6 +8,7 @@ use App\Notifications\ReadingPlanReminder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class SendReadingPlanReminders extends Command
 {
@@ -102,7 +103,7 @@ class SendReadingPlanReminders extends Command
             ->exists();
 
         if (! $alreadySent) {
-            $plan->user->notify(new ReadingPlanReminder($plan, $timing));
+            Notification::send($plan->user, new ReadingPlanReminder($plan, $timing));
         }
     }
 }
